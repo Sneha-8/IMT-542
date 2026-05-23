@@ -1,6 +1,16 @@
 # Final project presentation
 
-## HTML (recommended for class)
+## Web platform prototype (show in class)
+
+Full UI mockup with real demo data — search, filters, business detail modal:
+
+```bash
+open /Users/snehareddy/Desktop/IMT-542/final/web/platform.html
+```
+
+Embedded inside the HTML slide deck on the product slides.
+
+## HTML slides (recommended for class)
 
 Open in Chrome or Edge (fullscreen with `F`):
 
