@@ -1,43 +1,22 @@
-# IMT 542 - I4: Easy to Access
+# IMT 542 — Portable Information Structures
 
-**Assignment:** I4 Easy to Access - Find 3 different information structures with different access technologies  
-**Course:** IMT 542 A Sp 26 - Portable Information Structures  
-**Author:** Sneha
+**Course:** IMT 542 A Sp 26  
+**Author:** Sneha  
+**GitHub:** https://github.com/Sneha-8/IMT-542
 
----
+## Assignments
 
-## Overview
+| Folder | Assignment |
+|--------|------------|
+| [I4_Easy_to_Access.ipynb](I4_Easy_to_Access.ipynb) | I4 — Easy to Access (JSON, CSV, HTML) |
+| [I7/](I7/) | I7 — Simple REST API (Flask + JSON) |
+| [I8/](I8/) | I8 — NoSQL / Knowledge Graph behind API |
+| [G8/](G8/) | G8 — Access Methodology |
+| [G9/](G9/) | G9 — Test Plan (quality & performance) |
+| **[final/](final/)** | **Final Project — SBP portable API + docs + PPTX** |
 
-This notebook demonstrates three different ways to access information structures using Python. Each function fetches data using a different access technology and prints a sample of the output. Comments in the code explain the pros and cons of each approach.
+## Final project (start here)
 
-| # | Information Structure | Access Technology | Data Source |
-|---|----------------------|-------------------|-------------|
-| 1 | JSON | REST API over HTTP | Open-Meteo weather API (no key needed) |
-| 2 | CSV | HTTP file download | US state population dataset (GitHub) |
-| 3 | HTML | Web scraping (BeautifulSoup) | Wikipedia table |
+See **[final/README.md](final/README.md)** for setup, documentation, tests, and Canvas submission steps.
 
----
-
-## How to Run
-
-### Option 1: Google Colab (Recommended)
-
-1. Click the **"Open in Colab"** badge at the top of the notebook
-2. Go to **Runtime > Run all**
-3. No setup needed - all libraries are pre-installed in Colab
-
-### Option 2: Run Locally
-
-1. Clone this repo: `git clone https://github.com/Sneha-8/IMT-547-A.git`
-2. Install dependencies: `pip install requests beautifulsoup4`
-3. Open and run the notebook: `jupyter notebook I4_Easy_to_Access.ipynb`
-
----
-
-## Dependencies
-
-- `requests` - for HTTP API calls and file downloads
-- `beautifulsoup4` - for HTML parsing
-- `csv`, `io` - Python standard library (no install needed)
-
-All dependencies are pre-installed in Google Colab. No API keys required - all data sources are free and public.
+Deliverables include information story, FAIR assessment, portable schema v1.0, working Flask API, and `presentation/IMT542_Final_Project.pptx`.

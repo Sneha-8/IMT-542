@@ -1,0 +1,23 @@
+name: test-final-api
+
+on:
+  push:
+    paths:
+      - "final/**"
+  pull_request:
+    paths:
+      - "final/**"
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: final
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt
+      - run: export USE_MONGITA=true && python seed_db.py && pytest -q

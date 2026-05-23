@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Sneha-8/IMT-542/final/sbp_schema_v1.json",
+  "title": "SBP List Response v1.0",
+  "type": "object",
+  "required": ["schema_version", "data_classification", "provenance", "query_summary", "businesses"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "1.0" },
+    "data_classification": { "type": "string", "enum": ["public", "restricted"] },
+    "provenance": {
+      "type": "object",
+      "required": ["source", "retrieved_at", "license"],
+      "properties": {
+        "source": { "type": "string" },
+        "endpoint": { "type": "string" },
+        "repository": { "type": "string" },
+        "query_params": { "type": "object" },
+        "retrieved_at": { "type": "string" },
+        "license": { "type": "string" },
+        "api_key_owner": { "type": "string" }
+      }
+    },
+    "query_summary": {
+      "type": "object",
+      "required": ["records_in_this_batch", "quality_summary"],
+      "properties": {
+        "records_in_this_batch": { "type": "integer", "minimum": 0 },
+        "quality_summary": {
+          "type": "object",
+          "required": ["completeness_score", "last_validated"],
+          "properties": {
+            "records_complete": { "type": "integer" },
+            "completeness_score": { "type": "number", "minimum": 0, "maximum": 1 },
+            "last_validated": { "type": "string" }
+          }
+        }
+      }
+    },
+    "businesses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "categories", "quality_flags"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "categories": { "type": "array", "items": { "type": "string" } },
+          "rating": { "type": "number" },
+          "quality_flags": { "type": "object" }
+        }
+      }
+    }
+  }
+}

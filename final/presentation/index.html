@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IMT 542 Final — Small Business Platform</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" />
+  <style>
+    :root { --uw-purple: #4b2e83; --uw-gold: #b7a57a; }
+    .reveal h1, .reveal h2 { color: var(--uw-purple); text-transform: none; }
+    .reveal strong { color: var(--uw-purple); }
+    .reveal a { color: #0066cc; }
+    .reveal table { font-size: 0.72em; margin: 0 auto; }
+    .reveal th { background: var(--uw-purple); color: #fff; }
+    .reveal pre { font-size: 0.5em; max-height: 420px; }
+    .reveal .small { font-size: 0.75em; color: #444; }
+    .reveal .demo-box {
+      background: #f4f1f9;
+      border-left: 4px solid var(--uw-purple);
+      padding: 0.6em 1em;
+      text-align: left;
+      font-size: 0.65em;
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1em; font-size: 0.8em; }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <section>
+        <h1>Neighborhood Small Business Platform</h1>
+        <p>IMT 542 Final Project — Portable Information Structures</p>
+        <p class="small"><strong>Sneha</strong> | Spring 2026</p>
+        <p class="small">
+          <a href="https://github.com/Sneha-8/IMT-542/tree/main/final" target="_blank">github.com/Sneha-8/IMT-542</a>
+        </p>
+      </section>
+
+      <section>
+        <h2>Information story</h2>
+        <p><strong>As a</strong> Seattle resident</p>
+        <p><strong>I need</strong> a trustworthy feed of nearby independent businesses</p>
+        <p><strong>So that</strong> I can discover and support local shops (not only chains)</p>
+        <p class="small">Community goal: keep spending and jobs in the neighborhood</p>
+      </section>
+
+      <section>
+        <h2>Users</h2>
+        <table>
+          <tr><th>Persona</th><th>Need</th></tr>
+          <tr><td>Resident</td><td>Search by neighborhood, tags, open now</td></tr>
+          <tr><td>Business owner</td><td>Stable public listing; control contact data</td></tr>
+          <tr><td>Developer / civic tool</td><td>JSON + provenance + schema contract</td></tr>
+        </table>
+        <p class="small">Insight area: <strong>visualize</strong> listings + <strong>analyze</strong> category stats</p>
+      </section>
+
+      <section>
+        <h2>Wireframe (concept)</h2>
+        <pre><code>+------------------------------------------+
+|  Find local businesses    [Search...][Go]|
+|  Neighborhood [Capitol Hill]  ZIP [98122]|
++------------------------------------------+
+|  Brew & Bloom Coffee    4.7  cafe        |
+|  tags: coffee, vegan-options, wifi       |
++------------------------------------------+
+|  Data: SBP v1.0 | completeness: 92%      |
++------------------------------------------+</code></pre>
+      </section>
+
+      <section>
+        <h2>Existing information (before)</h2>
+        <div class="two-col">
+          <ul>
+            <li>Yelp Fusion API</li>
+            <li>HTML chamber directories</li>
+            <li>Social / Instagram</li>
+            <li>I7 flat JSON file</li>
+          </ul>
+          <ul>
+            <li>No single portable schema</li>
+            <li>License / redistribution limits</li>
+            <li>Hard to query across sources</li>
+            <li>No quality or provenance block</li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h2>FAIR assessment (summary)</h2>
+        <table>
+          <tr><th>Principle</th><th>Before</th><th>SBP v1.0</th></tr>
+          <tr><td>Findable</td><td>Query-dependent IDs</td><td>Stable <code>id</code>, GitHub URI</td></tr>
+          <tr><td>Accessible</td><td>App-specific</td><td>HTTPS REST + <code>/health</code></td></tr>
+          <tr><td>Interoperable</td><td>Vendor JSON</td><td>JSON Schema + E.164</td></tr>
+          <tr><td>Reusable</td><td>Weak license metadata</td><td><code>provenance.license</code></td></tr>
+        </table>
+      </section>
+
+      <section>
+        <h2>What we improved (4 dimensions)</h2>
+        <table>
+          <tr><th>Dimension</th><th>Change</th></tr>
+          <tr><td>Information</td><td><code>quality_flags</code>, completeness score</td></tr>
+          <tr><td>Structure</td><td>SBP envelope + LocalBusiness-aligned records</td></tr>
+          <tr><td>Format</td><td>Versioned JSON + published schema</td></tr>
+          <tr><td>Access</td><td>REST API (was static file / memory)</td></tr>
+        </table>
+      </section>
+
+      <section>
+        <h2>New structure: response envelope</h2>
+        <pre><code>{
+  "schema_version": "1.0",
+  "provenance": { "source", "license", "retrieved_at", ... },
+  "query_summary": { "quality_summary": { "completeness_score" } },
+  "businesses": [ { "id", "name", "categories", "quality_flags", ... } ]
+}</code></pre>
+      </section>
+
+      <section>
+        <h2>API endpoints (demo)</h2>
+        <div class="demo-box">
+          <p><code>GET /health</code> — liveness</p>
+          <p><code>GET /schema</code> — JSON Schema contract</p>
+          <p><code>GET /businesses/search?term=&amp;location=</code> — portable search</p>
+          <p><code>GET /businesses/{id}</code> — single record</p>
+          <p><code>GET /stats</code> — analyze by category</p>
+          <p><code>GET /open-now</code> — hours-based filter</p>
+        </div>
+        <p class="small">Replace base URL with your ngrok HTTPS URL during live demo</p>
+      </section>
+
+      <section>
+        <h2>Live demo</h2>
+        <p>Open in browser (start Flask + ngrok first):</p>
+        <p><a id="demo-health" href="http://localhost:5002/health" target="_blank">/health</a></p>
+        <p><a id="demo-search" href="http://localhost:5002/businesses/search?term=coffee&amp;location=Capitol%20Hill" target="_blank">/businesses/search?term=coffee&amp;location=Capitol Hill</a></p>
+        <p><a id="demo-stats" href="http://localhost:5002/stats" target="_blank">/stats</a></p>
+        <p class="small">Set base: <code>?api=https://YOUR.ngrok.app</code> in this page URL to rewrite links</p>
+      </section>
+
+      <section>
+        <h2>Security</h2>
+        <ul>
+          <li><code>contact</code> email/phone = <strong>restricted</strong> by default</li>
+          <li><code>Authorization: Bearer &lt;token&gt;</code> unlocks full contact</li>
+          <li>No API secrets in repo or responses</li>
+          <li>Documented in G9 test plan + pytest</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Quality and performance</h2>
+        <ul>
+          <li>Average <code>completeness_score</code> ~0.92 (demo dataset, n=6)</li>
+          <li>9 pytest tests + jsonschema validation</li>
+          <li>Warm search latency &lt; 50 ms locally</li>
+          <li>Remediation: live Yelp adapter, CI uptime checks</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Project timeline (course)</h2>
+        <table>
+          <tr><th>Phase</th><th>Artifact</th></tr>
+          <tr><td>I7</td><td>Flask + JSON file</td></tr>
+          <tr><td>I8</td><td>MongoDB + aggregation endpoints</td></tr>
+          <tr><td>G8 / G9</td><td>Access methodology + test plan</td></tr>
+          <tr><td>Final</td><td>SBP v1.0 + docs + tests</td></tr>
+        </table>
+      </section>
+
+      <section>
+        <h2>Limitations and ethics</h2>
+        <ul>
+          <li>Curated 6-business demo (Yelp documented as production upstream)</li>
+          <li>Public vs restricted fields by design</li>
+          <li>CC-BY-4.0 on demo data; respect Yelp license if integrated</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Thank you</h2>
+        <p><a href="https://github.com/Sneha-8/IMT-542/tree/main/final" target="_blank">GitHub: final/</a></p>
+        <p>Docs: <code>final/docs/</code> | PPTX: <code>IMT542_Final_Project.pptx</code></p>
+        <p>Questions?</p>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    const apiBase = (params.get("api") || "http://localhost:5002").replace(/\/$/, "");
+    ["demo-health", "demo-search", "demo-stats"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      const path = new URL(el.getAttribute("href")).pathname + new URL(el.getAttribute("href")).search;
+      el.href = apiBase + path;
+    });
+
+    Reveal.initialize({
+      hash: true,
+      slideNumber: true,
+      transition: "slide",
+    });
+  </script>
+</body>
+</html>

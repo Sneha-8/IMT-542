@@ -1,0 +1,7 @@
+flask>=3.0
+pymongo>=4.0
+requests>=2.31
+jsonschema>=4.20
+pytest>=8.0
+mongita>=1.2
+python-pptx>=1.0
