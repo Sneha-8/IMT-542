@@ -4,8 +4,8 @@ Builds on I7 by storing data in a NoSQL collection (MongoDB or Mongita)
 instead of an in-memory list loaded from JSON.
 
 Every existing endpoint queries the NoSQL store, and several new endpoints
-take advantage of NoSQL features: indexed sort, aggregation pipelines,
-regex search, array queries, and flexible-schema writes.
+take advantage of NoSQL features: indexed sort, array queries, nested-document
+filtering, and flexible-schema writes.
 
 Run:
     python seed_db.py        # one time, loads small_businesses.json
@@ -38,6 +38,11 @@ def clean(doc):
     if doc and "_id" in doc:
         doc.pop("_id")
     return doc
+
+
+def all_docs():
+    """Return all business documents with _id stripped."""
+    return [clean(b) for b in businesses.find({})]
 
 
 @app.route("/")
@@ -92,8 +97,8 @@ def get_business(business_id):
 
 @app.route("/businesses/category/<category>", methods=["GET"])
 def get_by_category(category):
-    query = {"category": {"$regex": f"^{category}$", "$options": "i"}}
-    matches = [clean(b) for b in businesses.find(query)]
+    cat_lower = category.lower()
+    matches = [b for b in all_docs() if b.get("category", "").lower() == cat_lower]
     if not matches:
         return jsonify({"error": f"No businesses in category '{category}'"}), 404
     return jsonify({"category": category, "total": len(matches), "businesses": matches})
@@ -101,7 +106,7 @@ def get_by_category(category):
 
 @app.route("/businesses/zip/<zipcode>", methods=["GET"])
 def get_by_zip(zipcode):
-    matches = [clean(b) for b in businesses.find({"location.zip": zipcode})]
+    matches = [b for b in all_docs() if b.get("location", {}).get("zip") == zipcode]
     if not matches:
         return jsonify({"error": f"No businesses in ZIP '{zipcode}'"}), 404
     return jsonify({"zip": zipcode, "total": len(matches), "businesses": matches})
@@ -109,8 +114,9 @@ def get_by_zip(zipcode):
 
 @app.route("/businesses/neighborhood/<neighborhood>", methods=["GET"])
 def get_by_neighborhood(neighborhood):
-    query = {"location.neighborhood": {"$regex": f"^{neighborhood}$", "$options": "i"}}
-    matches = [clean(b) for b in businesses.find(query)]
+    n_lower = neighborhood.lower()
+    matches = [b for b in all_docs()
+               if b.get("location", {}).get("neighborhood", "").lower() == n_lower]
     if not matches:
         return jsonify({"error": f"No businesses in '{neighborhood}'"}), 404
     return jsonify({"neighborhood": neighborhood, "total": len(matches), "businesses": matches})
@@ -124,17 +130,20 @@ def list_categories():
 
 @app.route("/search", methods=["GET"])
 def search():
-    q = request.args.get("q", "").strip()
+    q = request.args.get("q", "").strip().lower()
     if not q:
         return jsonify({"error": "Provide ?q=<keyword>"}), 400
-    query = {"$or": [
-        {"name": {"$regex": q, "$options": "i"}},
-        {"description": {"$regex": q, "$options": "i"}},
-        {"tags": {"$regex": q, "$options": "i"}},
-        {"category": {"$regex": q, "$options": "i"}},
-        {"ownerName": {"$regex": q, "$options": "i"}},
-    ]}
-    matches = [clean(b) for b in businesses.find(query)]
+    matches = []
+    for b in all_docs():
+        haystack = " ".join([
+            str(b.get("name", "")),
+            str(b.get("description", "")),
+            str(b.get("category", "")),
+            str(b.get("ownerName", "")),
+            " ".join(b.get("tags", [])),
+        ]).lower()
+        if q in haystack:
+            matches.append(b)
     return jsonify({"query": q, "total": len(matches), "businesses": matches})
 
 
@@ -142,7 +151,9 @@ def search():
 
 @app.route("/businesses/tag/<tag>", methods=["GET"])
 def get_by_tag(tag):
-    matches = [clean(b) for b in businesses.find({"tags": tag.lower()})]
+    tag_lower = tag.lower()
+    matches = [b for b in all_docs()
+               if tag_lower in [t.lower() for t in b.get("tags", [])]]
     return jsonify({"tag": tag, "total": len(matches), "businesses": matches})
 
 
@@ -154,11 +165,11 @@ def get_by_price():
     except ValueError:
         return jsonify({"error": "min and max must be numbers"}), 400
     matches = []
-    for b in businesses.find({}):
+    for b in all_docs():
         for product in b.get("products", []):
             price = product.get("price")
             if price is not None and pmin <= price <= pmax:
-                matches.append(clean(b))
+                matches.append(b)
                 break
     return jsonify({
         "price_range": {"min": pmin, "max": pmax},
@@ -173,16 +184,16 @@ def top_rated():
         limit = int(request.args.get("limit", 3))
     except ValueError:
         limit = 3
-    all_biz = [clean(b) for b in businesses.find({})]
-    all_biz.sort(key=lambda b: b.get("communityRating", 0), reverse=True)
-    return jsonify({"limit": limit, "businesses": all_biz[:limit]})
+    docs = all_docs()
+    docs.sort(key=lambda b: b.get("communityRating", 0), reverse=True)
+    return jsonify({"limit": limit, "businesses": docs[:limit]})
 
 
 @app.route("/open-now", methods=["GET"])
 def open_now():
     today = datetime.now().strftime("%A").lower()
     matches = []
-    for b in businesses.find({}):
+    for b in all_docs():
         hours = b.get("hours", {}).get(today, "closed")
         if str(hours).lower() != "closed":
             matches.append({
@@ -197,7 +208,7 @@ def open_now():
 @app.route("/stats", methods=["GET"])
 def stats():
     by_cat = {}
-    for b in businesses.find({}):
+    for b in all_docs():
         cat = b.get("category", "Uncategorized")
         entry = by_cat.setdefault(cat, {"count": 0, "rating_sum": 0.0})
         entry["count"] += 1
