@@ -1,20 +1,24 @@
 """
 I8 — Local Small Business Discovery API (NoSQL-backed)
+Builds on I7 by storing data in a NoSQL collection (MongoDB or Mongita)
+instead of an in-memory list loaded from JSON.
 
-Builds on I7 by storing data in a MongoDB collection instead of an in-memory list
-loaded from JSON.  Every existing endpoint now queries MongoDB, and several new
-endpoints take advantage of NoSQL features: indexed sort, aggregation pipelines,
+Every existing endpoint queries the NoSQL store, and several new endpoints
+take advantage of NoSQL features: indexed sort, aggregation pipelines,
 regex search, array queries, and flexible-schema writes.
 
 Run:
-    python seed_db.py            # one time, loads small_businesses.json into MongoDB
-    flask --app app run -p 5002
-    ngrok http 5002
+    python seed_db.py        # one time, loads small_businesses.json
+    python app.py            # starts Flask on port 5002
+
+Set USE_MONGITA=0 in your env if you have a real MongoDB running locally.
+Default is Mongita (file-based) so the demo runs with no extra install.
 """
 from flask import Flask, jsonify, request
 from datetime import datetime
+import os
 
-USE_MONGITA = False  # match the value used in seed_db.py
+USE_MONGITA = os.environ.get("USE_MONGITA", "1") == "1"
 
 if USE_MONGITA:
     from mongita import MongitaClientDisk
@@ -30,7 +34,7 @@ app = Flask(__name__)
 
 
 def clean(doc):
-    """Strip Mongo's internal _id so responses stay JSON-friendly."""
+    """Strip the internal _id so responses stay JSON-friendly."""
     if doc and "_id" in doc:
         doc.pop("_id")
     return doc
@@ -149,8 +153,13 @@ def get_by_price():
         pmax = float(request.args.get("max", 10_000))
     except ValueError:
         return jsonify({"error": "min and max must be numbers"}), 400
-    pipeline = [{"$match": {"products.price": {"$gte": pmin, "$lte": pmax}}}]
-    matches = [clean(b) for b in businesses.aggregate(pipeline)]
+    matches = []
+    for b in businesses.find({}):
+        for product in b.get("products", []):
+            price = product.get("price")
+            if price is not None and pmin <= price <= pmax:
+                matches.append(clean(b))
+                break
     return jsonify({
         "price_range": {"min": pmin, "max": pmax},
         "total": len(matches),
@@ -164,9 +173,9 @@ def top_rated():
         limit = int(request.args.get("limit", 3))
     except ValueError:
         limit = 3
-    cursor = businesses.find({}).sort("communityRating", -1).limit(limit)
-    results = [clean(b) for b in cursor]
-    return jsonify({"limit": limit, "businesses": results})
+    all_biz = [clean(b) for b in businesses.find({})]
+    all_biz.sort(key=lambda b: b.get("communityRating", 0), reverse=True)
+    return jsonify({"limit": limit, "businesses": all_biz[:limit]})
 
 
 @app.route("/open-now", methods=["GET"])
@@ -175,7 +184,7 @@ def open_now():
     matches = []
     for b in businesses.find({}):
         hours = b.get("hours", {}).get(today, "closed")
-        if hours.lower() != "closed":
+        if str(hours).lower() != "closed":
             matches.append({
                 "id": b["id"],
                 "name": b["name"],
@@ -187,17 +196,16 @@ def open_now():
 
 @app.route("/stats", methods=["GET"])
 def stats():
-    pipeline = [
-        {"$group": {
-            "_id": "$category",
-            "count": {"$sum": 1},
-            "avg_rating": {"$avg": "$communityRating"}
-        }},
-        {"$sort": {"count": -1}}
-    ]
+    by_cat = {}
+    for b in businesses.find({}):
+        cat = b.get("category", "Uncategorized")
+        entry = by_cat.setdefault(cat, {"count": 0, "rating_sum": 0.0})
+        entry["count"] += 1
+        entry["rating_sum"] += b.get("communityRating", 0)
     by_category = [
-        {"category": r["_id"], "count": r["count"], "avg_rating": round(r["avg_rating"], 2)}
-        for r in businesses.aggregate(pipeline)
+        {"category": c, "count": v["count"],
+         "avg_rating": round(v["rating_sum"] / v["count"], 2)}
+        for c, v in sorted(by_cat.items(), key=lambda kv: -kv[1]["count"])
     ]
     return jsonify({
         "total_businesses": businesses.count_documents({}),
