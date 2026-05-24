@@ -1,1 +1,314 @@
-[{"id":"sb-001","name":"Brew & Bloom Coffee","category":"cafe","description":"A cozy neighborhood coffee shop with locally sourced beans and handmade pastries.","location":{"address":"412 Pine St","city":"Seattle","state":"WA","zip":"98101","neighborhood":"Capitol Hill"},"contact":{"phone":"206-555-0101","email":"hello@brewandbloom.com","website":"https://brewandbloom.com","instagram":"@brewandbloom"},"products":[{"name":"House Drip Coffee","price":3.50},{"name":"Lavender Latte","price":5.75},{"name":"Almond Croissant","price":4.00}],"hours":{"monday":"7am-6pm","tuesday":"7am-6pm","wednesday":"7am-6pm","thursday":"7am-6pm","friday":"7am-7pm","saturday":"8am-7pm","sunday":"9am-5pm"},"tags":["coffee","pastries","vegan-options","wifi"],"yearEstablished":2018,"ownerName":"Maya Chen","acceptsOnlineOrders":true,"communityRating":4.7},{"id":"sb-002","name":"Threads & Things Boutique","category":"retail","description":"An independent clothing boutique featuring local designers and sustainable fashion.","location":{"address":"820 E Pike St","city":"Seattle","state":"WA","zip":"98122","neighborhood":"Capitol Hill"},"contact":{"phone":"206-555-0202","email":"shop@threadsandthings.com","website":"https://threadsandthings.com","instagram":"@threadsandthings"},"products":[{"name":"Hand-dyed Tote Bag","price":35.00},{"name":"Local Designer Jacket","price":120.00},{"name":"Organic Cotton Tee","price":28.00}],"hours":{"monday":"closed","tuesday":"11am-7pm","wednesday":"11am-7pm","thursday":"11am-7pm","friday":"11am-8pm","saturday":"10am-8pm","sunday":"11am-5pm"},"tags":["fashion","sustainable","local-designers","women-owned"],"yearEstablished":2015,"ownerName":"Priya Nair","acceptsOnlineOrders":true,"communityRating":4.5},{"id":"sb-003","name":"Fix-It Fast Bike Shop","category":"repair-services","description":"Neighborhood bike repair and sales shop, serving cyclists of all levels since 2010.","location":{"address":"305 NE 45th St","city":"Seattle","state":"WA","zip":"98105","neighborhood":"University District"},"contact":{"phone":"206-555-0303","email":"fixitfast@bikes.com","website":"https://fixitfastbikes.com","instagram":"@fixitfastbikes"},"products":[{"name":"Basic Tune-Up","price":65.00},{"name":"Flat Tire Repair","price":20.00},{"name":"Custom Build Consultation","price":50.00}],"hours":{"monday":"10am-6pm","tuesday":"10am-6pm","wednesday":"10am-6pm","thursday":"10am-6pm","friday":"10am-6pm","saturday":"9am-5pm","sunday":"closed"},"tags":["bikes","repair","commuter","family-owned"],"yearEstablished":2010,"ownerName":"Carlos Rivera","acceptsOnlineOrders":false,"communityRating":4.9},{"id":"sb-004","name":"Green Leaf Bookstore","category":"retail","description":"Independent bookstore specializing in fiction, poetry, and local authors.","location":{"address":"1521 Melrose Ave","city":"Seattle","state":"WA","zip":"98122","neighborhood":"Capitol Hill"},"contact":{"phone":"206-555-0404","email":"hello@greenleafbooks.com","website":"https://greenleafbooks.com","instagram":"@greenleafbooks"},"products":[{"name":"Local Author Hardcover","price":24.00},{"name":"Poetry Chapbook","price":12.00},{"name":"Used Paperback","price":6.00}],"hours":{"monday":"10am-8pm","tuesday":"10am-8pm","wednesday":"10am-8pm","thursday":"10am-8pm","friday":"10am-9pm","saturday":"10am-9pm","sunday":"11am-6pm"},"tags":["books","local-authors","events","wifi"],"yearEstablished":2012,"ownerName":"Anika Patel","acceptsOnlineOrders":true,"communityRating":4.8},{"id":"sb-005","name":"Salt & Vine Bistro","category":"restaurant","description":"Farm-to-table small plates featuring seasonal Pacific Northwest ingredients.","location":{"address":"2210 N 45th St","city":"Seattle","state":"WA","zip":"98103","neighborhood":"Wallingford"},"contact":{"phone":"206-555-0505","email":"reserve@saltandvine.com","website":"https://saltandvine.com","instagram":"@saltandvine"},"products":[{"name":"Seasonal Tasting Menu","price":65.00},{"name":"Wine Flight","price":24.00},{"name":"Small Plate","price":15.00}],"hours":{"monday":"closed","tuesday":"5pm-10pm","wednesday":"5pm-10pm","thursday":"5pm-10pm","friday":"5pm-11pm","saturday":"5pm-11pm","sunday":"5pm-9pm"},"tags":["dinner","wine","farm-to-table","date-night"],"yearEstablished":2019,"ownerName":"Diego Morales","acceptsOnlineOrders":false,"communityRating":4.6},{"id":"sb-006","name":"Sunrise Yoga Studio","category":"wellness","description":"Community yoga studio offering sliding-scale classes and teacher training.","location":{"address":"618 NE 65th St","city":"Seattle","state":"WA","zip":"98115","neighborhood":"Roosevelt"},"contact":{"phone":"206-555-0606","email":"namaste@sunriseyoga.com","website":"https://sunriseyoga.com","instagram":"@sunriseyogasea"},"products":[{"name":"Drop-in Class","price":18.00},{"name":"10-Class Pack","price":150.00},{"name":"Monthly Unlimited","price":120.00}],"hours":{"monday":"6am-8pm","tuesday":"6am-8pm","wednesday":"6am-8pm","thursday":"6am-8pm","friday":"6am-7pm","saturday":"7am-5pm","sunday":"8am-4pm"},"tags":["yoga","wellness","sliding-scale","community"],"yearEstablished":2016,"ownerName":"Jasmine Wu","acceptsOnlineOrders":true,"communityRating":4.8}]
+[
+  {
+    "id": "sb-001",
+    "name": "Brew & Bloom Coffee",
+    "category": "cafe",
+    "description": "A cozy neighborhood coffee shop with locally sourced beans and handmade pastries.",
+    "location": {
+      "address": "412 Pine St",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98101",
+      "neighborhood": "Capitol Hill"
+    },
+    "contact": {
+      "phone": "206-555-0101",
+      "email": "hello@brewandbloom.com",
+      "website": "https://brewandbloom.com",
+      "instagram": "@brewandbloom"
+    },
+    "products": [
+      {
+        "name": "House Drip Coffee",
+        "price": 3.5
+      },
+      {
+        "name": "Lavender Latte",
+        "price": 5.75
+      },
+      {
+        "name": "Almond Croissant",
+        "price": 4
+      }
+    ],
+    "hours": {
+      "monday": "7am-6pm",
+      "tuesday": "7am-6pm",
+      "wednesday": "7am-6pm",
+      "thursday": "7am-6pm",
+      "friday": "7am-7pm",
+      "saturday": "8am-7pm",
+      "sunday": "9am-5pm"
+    },
+    "tags": [
+      "coffee",
+      "pastries",
+      "vegan-options",
+      "wifi"
+    ],
+    "yearEstablished": 2018,
+    "ownerName": "Maya Chen",
+    "acceptsOnlineOrders": true,
+    "communityRating": 4.7
+  },
+  {
+    "id": "sb-002",
+    "name": "Threads & Things Boutique",
+    "category": "retail",
+    "description": "An independent clothing boutique featuring local designers and sustainable fashion.",
+    "location": {
+      "address": "820 E Pike St",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98122",
+      "neighborhood": "Capitol Hill"
+    },
+    "contact": {
+      "phone": "206-555-0202",
+      "email": "shop@threadsandthings.com",
+      "website": "https://threadsandthings.com",
+      "instagram": "@threadsandthings"
+    },
+    "products": [
+      {
+        "name": "Hand-dyed Tote Bag",
+        "price": 35
+      },
+      {
+        "name": "Local Designer Jacket",
+        "price": 120
+      },
+      {
+        "name": "Organic Cotton Tee",
+        "price": 28
+      }
+    ],
+    "hours": {
+      "monday": "closed",
+      "tuesday": "11am-7pm",
+      "wednesday": "11am-7pm",
+      "thursday": "11am-7pm",
+      "friday": "11am-8pm",
+      "saturday": "10am-8pm",
+      "sunday": "11am-5pm"
+    },
+    "tags": [
+      "fashion",
+      "sustainable",
+      "local-designers",
+      "women-owned"
+    ],
+    "yearEstablished": 2015,
+    "ownerName": "Priya Nair",
+    "acceptsOnlineOrders": true,
+    "communityRating": 4.5
+  },
+  {
+    "id": "sb-003",
+    "name": "Fix-It Fast Bike Shop",
+    "category": "repair-services",
+    "description": "Neighborhood bike repair and sales shop, serving cyclists of all levels since 2010.",
+    "location": {
+      "address": "305 NE 45th St",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98105",
+      "neighborhood": "University District"
+    },
+    "contact": {
+      "phone": "206-555-0303",
+      "email": "fixitfast@bikes.com",
+      "website": "https://fixitfastbikes.com",
+      "instagram": "@fixitfastbikes"
+    },
+    "products": [
+      {
+        "name": "Basic Tune-Up",
+        "price": 65
+      },
+      {
+        "name": "Flat Tire Repair",
+        "price": 20
+      },
+      {
+        "name": "Custom Build Consultation",
+        "price": 50
+      }
+    ],
+    "hours": {
+      "monday": "10am-6pm",
+      "tuesday": "10am-6pm",
+      "wednesday": "10am-6pm",
+      "thursday": "10am-6pm",
+      "friday": "10am-6pm",
+      "saturday": "9am-5pm",
+      "sunday": "closed"
+    },
+    "tags": [
+      "bikes",
+      "repair",
+      "commuter",
+      "family-owned"
+    ],
+    "yearEstablished": 2010,
+    "ownerName": "Carlos Rivera",
+    "acceptsOnlineOrders": false,
+    "communityRating": 4.9
+  },
+  {
+    "id": "sb-004",
+    "name": "Green Leaf Bookstore",
+    "category": "retail",
+    "description": "Independent bookstore specializing in fiction, poetry, and local authors.",
+    "location": {
+      "address": "1521 Melrose Ave",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98122",
+      "neighborhood": "Capitol Hill"
+    },
+    "contact": {
+      "phone": "206-555-0404",
+      "email": "hello@greenleafbooks.com",
+      "website": "https://greenleafbooks.com",
+      "instagram": "@greenleafbooks"
+    },
+    "products": [
+      {
+        "name": "Local Author Hardcover",
+        "price": 24
+      },
+      {
+        "name": "Poetry Chapbook",
+        "price": 12
+      },
+      {
+        "name": "Used Paperback",
+        "price": 6
+      }
+    ],
+    "hours": {
+      "monday": "10am-8pm",
+      "tuesday": "10am-8pm",
+      "wednesday": "10am-8pm",
+      "thursday": "10am-8pm",
+      "friday": "10am-9pm",
+      "saturday": "10am-9pm",
+      "sunday": "11am-6pm"
+    },
+    "tags": [
+      "books",
+      "local-authors",
+      "events",
+      "wifi"
+    ],
+    "yearEstablished": 2012,
+    "ownerName": "Anika Patel",
+    "acceptsOnlineOrders": true,
+    "communityRating": 4.8
+  },
+  {
+    "id": "sb-005",
+    "name": "Salt & Vine Bistro",
+    "category": "restaurant",
+    "description": "Farm-to-table small plates featuring seasonal Pacific Northwest ingredients.",
+    "location": {
+      "address": "2210 N 45th St",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98103",
+      "neighborhood": "Wallingford"
+    },
+    "contact": {
+      "phone": "206-555-0505",
+      "email": "reserve@saltandvine.com",
+      "website": "https://saltandvine.com",
+      "instagram": "@saltandvine"
+    },
+    "products": [
+      {
+        "name": "Seasonal Tasting Menu",
+        "price": 65
+      },
+      {
+        "name": "Wine Flight",
+        "price": 24
+      },
+      {
+        "name": "Small Plate",
+        "price": 15
+      }
+    ],
+    "hours": {
+      "monday": "closed",
+      "tuesday": "5pm-10pm",
+      "wednesday": "5pm-10pm",
+      "thursday": "5pm-10pm",
+      "friday": "5pm-11pm",
+      "saturday": "5pm-11pm",
+      "sunday": "5pm-9pm"
+    },
+    "tags": [
+      "dinner",
+      "wine",
+      "farm-to-table",
+      "date-night"
+    ],
+    "yearEstablished": 2019,
+    "ownerName": "Diego Morales",
+    "acceptsOnlineOrders": false,
+    "communityRating": 4.6
+  },
+  {
+    "id": "sb-006",
+    "name": "Sunrise Yoga Studio",
+    "category": "wellness",
+    "description": "Community yoga studio offering sliding-scale classes and teacher training.",
+    "location": {
+      "address": "618 NE 65th St",
+      "city": "Seattle",
+      "state": "WA",
+      "zip": "98115",
+      "neighborhood": "Roosevelt"
+    },
+    "contact": {
+      "phone": "206-555-0606",
+      "email": "namaste@sunriseyoga.com",
+      "website": "https://sunriseyoga.com",
+      "instagram": "@sunriseyogasea"
+    },
+    "products": [
+      {
+        "name": "Drop-in Class",
+        "price": 18
+      },
+      {
+        "name": "10-Class Pack",
+        "price": 150
+      },
+      {
+        "name": "Monthly Unlimited",
+        "price": 120
+      }
+    ],
+    "hours": {
+      "monday": "6am-8pm",
+      "tuesday": "6am-8pm",
+      "wednesday": "6am-8pm",
+      "thursday": "6am-8pm",
+      "friday": "6am-7pm",
+      "saturday": "7am-5pm",
+      "sunday": "8am-4pm"
+    },
+    "tags": [
+      "yoga",
+      "wellness",
+      "sliding-scale",
+      "community"
+    ],
+    "yearEstablished": 2016,
+    "ownerName": "Jasmine Wu",
+    "acceptsOnlineOrders": true,
+    "communityRating": 4.8
+  }
+]
