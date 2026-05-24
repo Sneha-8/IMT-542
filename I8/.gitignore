@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+
+# Mongita (file-based NoSQL store, if USE_MONGITA = True)
+.mongita/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
