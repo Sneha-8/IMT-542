@@ -74,7 +74,7 @@
 
 ---
 
-## Presentation tomorrow
+## Presentation
 
 1. Open [presentation/index.html](../presentation/index.html) (Reveal.js) **or** PPTX in PowerPoint.
 2. Before class: `USE_MONGITA=true flask --app app run -p 5002` and `python3 -m http.server 8777` in `final/`.
@@ -86,7 +86,6 @@ Regenerate PPTX after doc edits:
 ```bash
 cd final && python scripts/build_presentation.py
 ```
-
 ---
 
 ## MSIM focus claimed
