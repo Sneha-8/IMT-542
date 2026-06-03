@@ -1,4 +1,8 @@
-# Final project presentation
+# Final project presentation (v4 — streamlined for class)
+
+**8 slides:** story → problems → FAIR (Yelp+OSM) → solution + JSON → quality/perf/security → demo → thanks
+
+**PPTX:** `IMT542_Final_Project.pptx` — regenerate with `python scripts/build_presentation.py`
 
 ## Web platform prototype (show in class)
 

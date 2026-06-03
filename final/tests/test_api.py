@@ -39,7 +39,8 @@ def test_health(flask_client):
 
 def test_search_validates_schema(flask_client):
     r = flask_client.get(
-        "/businesses/search", query_string={"term": "coffee", "location": "Seattle"}
+        "/businesses/search",
+        query_string={"term": "coffee", "location": "Capitol Hill", "source": "local"},
     )
     assert r.status_code == 200
     jsonschema.validate(r.json, LIST_SCHEMA)

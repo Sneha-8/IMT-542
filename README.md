@@ -1,7 +1,7 @@
 # IMT 542 — Portable Information Structures
 
 **Course:** IMT 542 A Sp 26  
-**Author:** Sneha  
+**Author:** Sneha Reddy  
 **GitHub:** https://github.com/Sneha-8/IMT-542
 
 ## Assignments
@@ -19,4 +19,4 @@
 
 See **[final/README.md](final/README.md)** for setup, documentation, tests, and Canvas submission steps.
 
-Deliverables include information story, FAIR assessment, portable schema v1.0, working Flask API, and `presentation/IMT542_Final_Project.pptx`.
+Deliverables: information story, FAIR assessment, SBP v1.0 schema, LocalFind UI, live Yelp+OSM Flask API, rubric docs in `final/docs/`, and `presentation/IMT542_Final_Project.pptx`.

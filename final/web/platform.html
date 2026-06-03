@@ -36,6 +36,15 @@
       padding: 0.45rem 1rem;
       letter-spacing: 0.02em;
     }
+    .proto-banner.yelp-on { background: #d32323; }
+    .card-img {
+      width: 56px; height: 56px; border-radius: 12px; object-fit: cover;
+    }
+    .loading { color: var(--muted); padding: 2rem; text-align: center; }
+    .error-msg {
+      background: #fef2f2; color: #991b1b; padding: 1rem; border-radius: 10px;
+      font-size: 0.9rem; margin: 1rem 0;
+    }
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
@@ -108,6 +117,22 @@
       cursor: pointer;
     }
     button.primary:hover { filter: brightness(1.08); }
+    .category-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+    .category-filters button {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.45rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      color: var(--text);
+      font-weight: 500;
+    }
+    .category-filters button.active, .category-filters button:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
     .tag-filters { display: flex; flex-wrap: wrap; gap: 0.5rem; }
     .tag-filters button {
       background: var(--bg);
@@ -260,6 +285,17 @@
       border-bottom: 1px solid var(--border);
       font-size: 0.9rem;
     }
+    .hours-block { font-size: 0.88rem; line-height: 1.5; }
+    .hours-today {
+      padding: 0.5rem 0.65rem;
+      background: var(--green-bg);
+      color: var(--green);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .hours-line { color: var(--muted); margin: 0.15rem 0; }
+    .hours-osm { color: var(--muted); font-size: 0.85rem; }
     .actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; flex-wrap: wrap; }
     .actions a, .actions button {
       padding: 0.55rem 1rem;
@@ -295,7 +331,7 @@
   </style>
 </head>
 <body>
-  <div class="proto-banner">Prototype UI — powered by Small Business Platform API (SBP v1.0)</div>
+  <div class="proto-banner" id="banner">LocalFind — loading API...</div>
 
   <header>
     <div class="logo">
@@ -303,28 +339,46 @@
       <span>Seattle neighborhood businesses</span>
     </div>
     <nav>
-      <a href="#">Explore</a>
-      <a href="#">Open now</a>
-      <a href="#">For owners</a>
-      <a href="#">Developers</a>
+      <a href="#" id="navExplore">Explore</a>
+      <button type="button" id="nearMeBtn" style="background:none;border:none;font:inherit;color:var(--muted);cursor:pointer;font-size:0.9rem;padding:0">Near me</button>
     </nav>
   </header>
 
   <section class="hero">
-    <h1>Support the shops on your block</h1>
+    <h1>Find small businesses near you</h1>
     <p>
-      Discover independent cafes, bookstores, repair shops, and more — filtered by
-      what matters to you, backed by portable data you can trust.
+      Shops, salons, repair, books, food, and more — search by ZIP code or use
+      your location, then open any listing for hours, ratings, and directions.
     </p>
     <div class="search-panel">
+      <div class="category-filters" id="categoryFilters"></div>
       <div class="search-row">
-        <input type="search" id="q" placeholder="Search coffee, vegan, wifi, books..." value="coffee" />
-        <select id="neighborhood">
-          <option value="">All neighborhoods</option>
-          <option value="Capitol Hill" selected>Capitol Hill</option>
-          <option value="University District">University District</option>
-          <option value="Wallingford">Wallingford</option>
-          <option value="Roosevelt">Roosevelt</option>
+        <input type="search" id="q" placeholder="Search bookstore, salon, hardware, cafe..." value="" />
+        <input type="text" id="location" placeholder="City or neighborhood (e.g. Seattle, WA)" value="Seattle, WA" />
+        <select id="zipFilter" title="Filter results by ZIP code">
+          <option value="">Any ZIP</option>
+          <option value="98101">98101 — Downtown</option>
+          <option value="98102">98102 — Capitol Hill</option>
+          <option value="98103">98103 — Wallingford / Fremont</option>
+          <option value="98104">98104 — Pioneer Square</option>
+          <option value="98105">98105 — University District</option>
+          <option value="98106">98106 — West Seattle</option>
+          <option value="98107">98107 — Ballard</option>
+          <option value="98108">98108 — Beacon Hill</option>
+          <option value="98109">98109 — South Lake Union</option>
+          <option value="98112">98112 — Madison Park</option>
+          <option value="98115">98115 — North Seattle</option>
+          <option value="98116">98116 — West Seattle / Alki</option>
+          <option value="98117">98117 — Greenwood</option>
+          <option value="98118">98118 — Columbia City</option>
+          <option value="98119">98119 — Queen Anne</option>
+          <option value="98121">98121 — Belltown</option>
+          <option value="98122">98122 — Central District</option>
+          <option value="98125">98125 — Northgate</option>
+          <option value="98126">98126 — White Center</option>
+          <option value="98133">98133 — Broadview</option>
+          <option value="98144">98144 — Mount Baker</option>
+          <option value="98177">98177 — Lake City</option>
         </select>
         <button type="button" class="primary" id="searchBtn">Search</button>
       </div>
@@ -341,7 +395,7 @@
       <div class="cards" id="cards"></div>
     </main>
     <aside>
-      <h4>Neighborhood insights</h4>
+      <h4>Results by type</h4>
       <div id="stats"></div>
     </aside>
   </div>
@@ -355,136 +409,464 @@
   </footer>
 
   <script>
-    const BUSINESSES = [{"id":"sb-001","name":"Brew & Bloom Coffee","category":"cafe","description":"A cozy neighborhood coffee shop with locally sourced beans and handmade pastries.","location":{"address":"412 Pine St","city":"Seattle","state":"WA","zip":"98101","neighborhood":"Capitol Hill"},"contact":{"phone":"206-555-0101","email":"hello@brewandbloom.com","website":"https://brewandbloom.com","instagram":"@brewandbloom"},"products":[{"name":"House Drip Coffee","price":3.5},{"name":"Lavender Latte","price":5.75},{"name":"Almond Croissant","price":4}],"hours":{"monday":"7am-6pm","tuesday":"7am-6pm","wednesday":"7am-6pm","thursday":"7am-6pm","friday":"7am-7pm","saturday":"8am-7pm","sunday":"9am-5pm"},"tags":["coffee","pastries","vegan-options","wifi"],"yearEstablished":2018,"ownerName":"Maya Chen","acceptsOnlineOrders":true,"communityRating":4.7},{"id":"sb-002","name":"Threads & Things Boutique","category":"retail","description":"An independent clothing boutique featuring local designers and sustainable fashion.","location":{"address":"820 E Pike St","city":"Seattle","state":"WA","zip":"98122","neighborhood":"Capitol Hill"},"contact":{"phone":"206-555-0202","email":"shop@threadsandthings.com","website":"https://threadsandthings.com","instagram":"@threadsandthings"},"products":[{"name":"Hand-dyed Tote Bag","price":35},{"name":"Local Designer Jacket","price":120},{"name":"Organic Cotton Tee","price":28}],"hours":{"monday":"closed","tuesday":"11am-7pm","wednesday":"11am-7pm","thursday":"11am-7pm","friday":"11am-8pm","saturday":"10am-8pm","sunday":"11am-5pm"},"tags":["fashion","sustainable","local-designers","women-owned"],"yearEstablished":2015,"ownerName":"Priya Nair","acceptsOnlineOrders":true,"communityRating":4.5},{"id":"sb-003","name":"Fix-It Fast Bike Shop","category":"repair-services","description":"Neighborhood bike repair and sales shop, serving cyclists of all levels since 2010.","location":{"address":"305 NE 45th St","city":"Seattle","state":"WA","zip":"98105","neighborhood":"University District"},"contact":{"phone":"206-555-0303","email":"fixitfast@bikes.com","website":"https://fixitfastbikes.com","instagram":"@fixitfastbikes"},"products":[{"name":"Basic Tune-Up","price":65},{"name":"Flat Tire Repair","price":20},{"name":"Custom Build Consultation","price":50}],"hours":{"monday":"10am-6pm","tuesday":"10am-6pm","wednesday":"10am-6pm","thursday":"10am-6pm","friday":"10am-6pm","saturday":"9am-5pm","sunday":"closed"},"tags":["bikes","repair","commuter","family-owned"],"yearEstablished":2010,"ownerName":"Carlos Rivera","acceptsOnlineOrders":false,"communityRating":4.9},{"id":"sb-004","name":"Green Leaf Bookstore","category":"retail","description":"Independent bookstore specializing in fiction, poetry, and local authors.","location":{"address":"1521 Melrose Ave","city":"Seattle","state":"WA","zip":"98122","neighborhood":"Capitol Hill"},"contact":{"phone":"206-555-0404","email":"hello@greenleafbooks.com","website":"https://greenleafbooks.com","instagram":"@greenleafbooks"},"products":[{"name":"Local Author Hardcover","price":24},{"name":"Poetry Chapbook","price":12},{"name":"Used Paperback","price":6}],"hours":{"monday":"10am-8pm","tuesday":"10am-8pm","wednesday":"10am-8pm","thursday":"10am-8pm","friday":"10am-9pm","saturday":"10am-9pm","sunday":"11am-6pm"},"tags":["books","local-authors","events","wifi"],"yearEstablished":2012,"ownerName":"Anika Patel","acceptsOnlineOrders":true,"communityRating":4.8},{"id":"sb-005","name":"Salt & Vine Bistro","category":"restaurant","description":"Farm-to-table small plates featuring seasonal Pacific Northwest ingredients.","location":{"address":"2210 N 45th St","city":"Seattle","state":"WA","zip":"98103","neighborhood":"Wallingford"},"contact":{"phone":"206-555-0505","email":"reserve@saltandvine.com","website":"https://saltandvine.com","instagram":"@saltandvine"},"products":[{"name":"Seasonal Tasting Menu","price":65},{"name":"Wine Flight","price":24},{"name":"Small Plate","price":15}],"hours":{"monday":"closed","tuesday":"5pm-10pm","wednesday":"5pm-10pm","thursday":"5pm-10pm","friday":"5pm-11pm","saturday":"5pm-11pm","sunday":"5pm-9pm"},"tags":["dinner","wine","farm-to-table","date-night"],"yearEstablished":2019,"ownerName":"Diego Morales","acceptsOnlineOrders":false,"communityRating":4.6},{"id":"sb-006","name":"Sunrise Yoga Studio","category":"wellness","description":"Community yoga studio offering sliding-scale classes and teacher training.","location":{"address":"618 NE 65th St","city":"Seattle","state":"WA","zip":"98115","neighborhood":"Roosevelt"},"contact":{"phone":"206-555-0606","email":"namaste@sunriseyoga.com","website":"https://sunriseyoga.com","instagram":"@sunriseyogasea"},"products":[{"name":"Drop-in Class","price":18},{"name":"10-Class Pack","price":150},{"name":"Monthly Unlimited","price":120}],"hours":{"monday":"6am-8pm","tuesday":"6am-8pm","wednesday":"6am-8pm","thursday":"6am-8pm","friday":"6am-7pm","saturday":"7am-5pm","sunday":"8am-4pm"},"tags":["yoga","wellness","sliding-scale","community"],"yearEstablished":2016,"ownerName":"Jasmine Wu","acceptsOnlineOrders":true,"communityRating":4.8}];
-
-    const ICONS = { cafe: "&#9749;", retail: "&#128717;", restaurant: "&#127860;", wellness: "&#129496;", "repair-services": "&#128690;" };
+    const API_BASE = (new URLSearchParams(location.search).get("api") || "http://127.0.0.1:5002").replace(/\/$/, "");
+    const ICONS = {
+      cafe: "&#9749;", coffee: "&#9749;", coffee_shop: "&#9749;",
+      retail: "&#128717;", clothes: "&#128087;", books: "&#128214;",
+      restaurant: "&#127860;", bar: "&#127866;", bakery: "&#127856;",
+      wellness: "&#129496;", yoga: "&#129496;", gym: "&#127947;",
+      "repair-services": "&#128690;", bicycle: "&#128690;", hardware: "&#128295;",
+      florist: "&#128144;", beauty: "&#128133;", hairdresser: "&#9986;",
+      pet: "&#128062;", pharmacy: "&#128138;", gift: "&#127873;",
+      local_business: "&#127978;", shop: "&#127978;",
+    };
+    const CATEGORY_BROWSE = [
+      { id: "all", label: "All nearby", term: "" },
+      { id: "food", label: "Food & drink", term: "cafe restaurant" },
+      { id: "fashion", label: "Fashion", term: "fashion boutique clothing" },
+      { id: "fitness", label: "Fitness", term: "gym yoga fitness" },
+      { id: "retail", label: "Shops", term: "gift retail store" },
+      { id: "services", label: "Services", term: "repair dry cleaning" },
+      { id: "beauty", label: "Beauty", term: "salon spa barber" },
+      { id: "pets", label: "Pets", term: "pet groomer" },
+      { id: "books", label: "Books & music", term: "bookstore records" },
+      { id: "home", label: "Home", term: "furniture hardware" },
+    ];
     const DAYS = ["sunday","monday","tuesday","wednesday","thursday","friday","saturday"];
+    const DAY_SHORT = {
+      monday: "Mon", tuesday: "Tue", wednesday: "Wed", thursday: "Thu",
+      friday: "Fri", saturday: "Sat", sunday: "Sun",
+    };
     let activeTag = "";
+    let activeCategory = "all";
+    let lastResults = [];
+    let yelpEnabled = false;
+    let userCoords = null;
 
     function todayKey() { return DAYS[new Date().getDay()]; }
-    function isOpen(b) {
-      const h = (b.hours || {})[todayKey()];
-      return h && String(h).toLowerCase() !== "closed";
+
+    function esc(s) {
+      if (!s) return "";
+      const d = document.createElement("div");
+      d.textContent = s;
+      return d.innerHTML;
     }
-    function matches(b, q, hood, tag) {
-      const hay = [b.name, b.description, b.category, ...(b.tags || [])].join(" ").toLowerCase();
-      if (q && !hay.includes(q.toLowerCase())) return false;
-      if (hood && b.location.neighborhood !== hood) return false;
-      if (tag && !(b.tags || []).includes(tag)) return false;
-      return true;
+
+    function safeUrl(url) {
+      if (!url) return "";
+      try {
+        const u = new URL(url);
+        if (u.protocol === "http:" || u.protocol === "https:") return u.href;
+      } catch (_) {}
+      return "";
+    }
+
+    function categoryOf(b) {
+      const raw = (b.categories && b.categories[0]) || "local";
+      return String(raw).replace(/_/g, " ");
+    }
+
+    function mapLink(b) {
+      const c = (b.location || {}).coordinates;
+      if (!c || c.latitude == null || c.longitude == null) return "";
+      return `https://www.google.com/maps/search/?api=1&query=${c.latitude},${c.longitude}`;
+    }
+
+    function normalizeZip(z) {
+      const m = String(z || "").match(/\b(\d{5})\b/);
+      return m ? m[1] : "";
+    }
+
+    function locLine(b) {
+      const loc = b.location || {};
+      const parts = [loc.address_line_1, loc.city, loc.state].filter(Boolean);
+      const zip = normalizeZip(loc.zip_code);
+      const hood = zip
+        ? `ZIP ${zip}`
+        : (loc.neighborhood || loc.city || "");
+      return { line: parts.join(", "), hood, zip };
+    }
+
+    function locationHaystack(b) {
+      const loc = b.location || {};
+      return [
+        loc.neighborhood,
+        loc.city,
+        loc.state,
+        loc.address_line_1,
+        loc.zip_code,
+        b.description,
+        b.name,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+    }
+
+    function selectedZip() {
+      return normalizeZip(document.getElementById("zipFilter").value);
+    }
+
+    function buildSearchLocation() {
+      const zip = selectedZip();
+      let loc = document.getElementById("location").value.trim();
+      if (zip) {
+        userCoords = null;
+        return `${zip}, Seattle, WA`;
+      }
+      if (!loc || loc.toLowerCase() === "near me") return "Seattle, WA";
+      return loc;
+    }
+
+    function matchesZip(b, zip) {
+      if (!zip) return true;
+      const have = normalizeZip((b.location || {}).zip_code);
+      return have === zip;
+    }
+
+    function isOpenHours(b) {
+      const h = b.hours || {};
+      const today = h[todayKey()];
+      if (today && String(today).toLowerCase() !== "closed") return true;
+      const note = String(h.note || "");
+      if (!note) return false;
+      return !/^\s*closed|off\b/i.test(note);
+    }
+
+    function formatHourSlot(val) {
+      if (!val) return "";
+      const s = String(val);
+      if (/^closed$/i.test(s)) return "Closed";
+      return s.replace(/,\s*/g, " · ");
+    }
+
+    function groupWeekHours(h) {
+      const order = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+      const groups = [];
+      let i = 0;
+      while (i < order.length) {
+        const val = h[order[i]];
+        if (!val) {
+          i += 1;
+          continue;
+        }
+        let j = i + 1;
+        while (j < order.length && h[order[j]] === val) j += 1;
+        const label =
+          j - i === 1
+            ? DAY_SHORT[order[i]]
+            : `${DAY_SHORT[order[i]]}–${DAY_SHORT[order[j - 1]]}`;
+        groups.push({ label, times: formatHourSlot(val) });
+        i = j;
+      }
+      return groups;
+    }
+
+    function renderHoursHtml(b) {
+      const h = b.hours || {};
+      const today = todayKey();
+      const dayOrder = ["monday","tuesday","wednesday","thursday","friday","saturday","sunday"];
+      const hasWeek = dayOrder.some((d) => h[d]);
+
+      if (hasWeek) {
+        const todayVal = formatHourSlot(h[today]);
+        const groups = groupWeekHours(h);
+        const allSame = groups.length === 1;
+        let html = "";
+        if (todayVal) {
+          html += `<p class="hours-today">Today (${DAY_SHORT[today]}): ${esc(todayVal)}</p>`;
+        }
+        if (allSame) {
+          html += `<p class="hours-line">Every day: ${esc(groups[0].times)}</p>`;
+        } else {
+          html += groups
+            .slice(0, 5)
+            .map((g) => `<p class="hours-line">${esc(g.label)}: ${esc(g.times)}</p>`)
+            .join("");
+        }
+        return `<div class="hours-block">${html}</div>`;
+      }
+
+      if (h.note) {
+        const note = String(h.note).length > 80 ? String(h.note).slice(0, 77) + "…" : h.note;
+        return `<div class="hours-block"><p class="hours-osm">${esc(note)}</p></div>`;
+      }
+
+      if (b.yelp_url) {
+        return `<div class="hours-block"><p class="hours-line">See <a href="${safeUrl(b.yelp_url)}" target="_blank" rel="noopener">Yelp</a> for hours</p></div>`;
+      }
+      return `<div class="hours-block"><p class="hours-line">Hours not listed</p></div>`;
+    }
+
+    function clientFilter(list) {
+      const zip = selectedZip();
+      if (!zip) return list;
+      return list.filter((b) => matchesZip(b, zip));
+    }
+
+    function tagFilter(list) {
+      if (!activeTag) return list;
+      return list.filter((b) => (b.tags || []).includes(activeTag));
     }
 
     function renderStats(list) {
       const byCat = {};
       list.forEach((b) => {
-        byCat[b.category] = (byCat[b.category] || 0) + 1;
+        const c = categoryOf(b);
+        byCat[c] = (byCat[c] || 0) + 1;
       });
       document.getElementById("stats").innerHTML = Object.entries(byCat)
-        .map(([c, n]) => `<div class="stat-row"><span>${c}</span><strong>${n}</strong></div>`)
-        .join("") + `<div class="stat-row"><span>Open today</span><strong>${list.filter(isOpen).length}</strong></div>`;
+        .map(([c, n]) => `<div class="stat-row"><span>${esc(c)}</span><strong>${n}</strong></div>`)
+        .join("") + `<div class="stat-row"><span>Avg rating</span><strong>${avgRating(list)}</strong></div>`;
+    }
+
+    function avgRating(list) {
+      const r = list.map((b) => b.rating).filter((x) => x != null);
+      if (!r.length) return "—";
+      return (r.reduce((a, b) => a + b, 0) / r.length).toFixed(1);
     }
 
     function renderCards(list) {
       const el = document.getElementById("cards");
+        const ds = document.getElementById("trustBadge").dataset.source || "";
+        const src = lastResults.length ? (ds || (yelpEnabled ? "Yelp+OSM" : "OpenStreetMap")) : "";
       document.getElementById("resultCount").textContent =
-        `${list.length} business${list.length === 1 ? "" : "es"} in your search`;
+        `${list.length} business${list.length === 1 ? "" : "es"}${src ? " · via " + src : ""}`;
       if (!list.length) {
-        el.innerHTML = "<p style='color:var(--muted)'>No matches. Try another neighborhood or keyword.</p>";
+        el.innerHTML = "<p style='color:var(--muted)'>No matches. Try a different search or location.</p>";
         return;
       }
-      el.innerHTML = list.map((b) => `
+      el.innerHTML = list.map((b) => {
+        const cat = categoryOf(b);
+        const { line, hood } = locLine(b);
+        const imgUrl = safeUrl(b.image_url);
+        const img = imgUrl
+          ? `<img class="card-img" src="${imgUrl}" alt="" />`
+          : `<div class="card-icon">${ICONS[cat] || "&#127978;"}</div>`;
+        const dist = b.distance_from_query
+          ? ` &middot; ${Math.round(b.distance_from_query.value)}m away`
+          : "";
+        const reviews = b.review_count != null ? ` (${b.review_count} reviews)` : "";
+        const price = b.price_symbol ? ` ${b.price_symbol}` : "";
+        return `
         <article class="card" data-id="${b.id}">
-          <div class="card-icon">${ICONS[b.category] || "&#127978;"}</div>
+          ${img}
           <div>
-            <h3>${b.name} ${isOpen(b) ? '<span class="open-pill">Open now</span>' : ""}</h3>
-            <p class="meta">${b.location.neighborhood} &middot; ${b.category} &middot; <span class="rating">${b.communityRating}</span></p>
-            <p style="font-size:0.9rem">${b.description.slice(0, 100)}...</p>
-            <div class="tags">${(b.tags || []).slice(0, 4).map((t) => `<span>${t}</span>`).join("")}</div>
+            <h3>${esc(b.name)}${isOpenHours(b) ? ' <span class="open-pill">Hours listed</span>' : ""}</h3>
+            <p class="meta">${esc(hood)} &middot; ${esc(cat)}${price} &middot; <span class="rating">${b.rating || "—"}</span>${reviews}${dist}</p>
+            <p style="font-size:0.9rem">${esc((b.description || "").slice(0, 120))}</p>
+            <div class="tags">${(b.tags || []).slice(0, 5).map((t) => `<span>${esc(t)}</span>`).join("")}</div>
           </div>
-        </article>
-      `).join("");
+        </article>`;
+      }).join("");
       el.querySelectorAll(".card").forEach((card) => {
         card.addEventListener("click", () => openDetail(card.dataset.id));
       });
     }
 
-    function openDetail(id) {
-      const b = BUSINESSES.find((x) => x.id === id);
-      if (!b) return;
-      const today = todayKey();
-      const hoursToday = (b.hours || {})[today] || "closed";
-      document.getElementById("detailContent").innerHTML = `
-        <button class="close" type="button" aria-label="Close">&times;</button>
-        <h2>${b.name}</h2>
-        <p class="meta">${b.location.address}, ${b.location.city} &middot; Est. ${b.yearEstablished}</p>
-        <p style="margin-top:0.75rem">${b.description}</p>
-        <div class="detail-section">
-          <h5>Today (${today})</h5>
-          <p><strong>${hoursToday}</strong> &middot; Owner: ${b.ownerName}</p>
-        </div>
-        <div class="detail-section">
-          <h5>Popular items</h5>
-          <ul class="product-list">${b.products.map((p) => `<li><span>${p.name}</span><span>$${p.price.toFixed(2)}</span></li>`).join("")}</ul>
-        </div>
-        <div class="actions">
-          <a class="fill" href="${b.contact.website}" target="_blank" rel="noopener">Visit website</a>
-          <button class="outline" type="button">Get directions</button>
-          ${b.acceptsOnlineOrders ? '<button class="outline" type="button">Order online</button>' : ""}
-        </div>
-        <div class="provenance">
-          Source: Small Business Platform v1.0 &middot; Retrieved just now &middot;
-          License: CC-BY-4.0 (demo) &middot; Contact details available to signed-in owners
-        </div>
-      `;
+    function updateTagFilters(list) {
+      const tags = [...new Set(list.flatMap((b) => b.tags || []))].sort();
+      document.getElementById("tagFilters").innerHTML = tags.map((t) =>
+        `<button type="button" data-tag="${esc(t)}">${esc(t)}</button>`
+      ).join("");
+    }
+
+    async function openDetail(id) {
       const panel = document.getElementById("detailPanel");
+      document.getElementById("detailContent").innerHTML =
+        '<button class="close" type="button">&times;</button><p class="loading">Loading details...</p>';
       panel.classList.add("open");
       panel.querySelector(".close").onclick = () => panel.classList.remove("open");
       panel.onclick = (e) => { if (e.target === panel) panel.classList.remove("open"); };
+
+      let b = lastResults.find((x) => x.id === id);
+      try {
+        const r = await fetch(`${API_BASE}/businesses/${encodeURIComponent(id)}?full=1`);
+        const data = await r.json();
+        if (r.ok && data.businesses && data.businesses[0]) b = data.businesses[0];
+      } catch (_) {}
+
+      if (!b) {
+        document.getElementById("detailContent").innerHTML =
+          '<button class="close" type="button">&times;</button><p>Could not load business.</p>';
+        return;
+      }
+
+      const loc = b.location || {};
+      const addr = [loc.address_line_1, loc.city, loc.state, loc.zip_code].filter(Boolean).join(", ");
+      const hoursHtml = renderHoursHtml(b);
+      const tx = (b.transactions || []).map((t) => esc(t)).join(", ");
+      const links = [];
+      if (b.yelp_url) links.push(`<a href="${esc(b.yelp_url)}" target="_blank" rel="noopener">Yelp</a>`);
+      if (b.osm_url) links.push(`<a href="${esc(b.osm_url)}" target="_blank" rel="noopener">OpenStreetMap</a>`);
+      const prov = links.length ? links.join(" · ") : "Live external API";
+      const map = mapLink(b);
+      const cats = (b.categories || []).map((c) => esc(String(c).replace(/_/g, " "))).join(", ");
+
+      document.getElementById("detailContent").innerHTML = `
+        <button class="close" type="button" aria-label="Close">&times;</button>
+        ${safeUrl(b.image_url) ? `<img src="${safeUrl(b.image_url)}" alt="" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:0.75rem" />` : ""}
+        <h2>${esc(b.name)}</h2>
+        <p class="meta">${esc(addr)}</p>
+        ${cats ? `<p class="meta">Type: ${cats}</p>` : ""}
+        <p style="margin-top:0.75rem">${esc(b.description || "")}</p>
+        <p class="meta">Rating <strong>${b.rating || "—"}</strong> &middot; ${b.review_count || 0} reviews ${b.price_symbol || ""}</p>
+        ${tx ? `<p class="meta">Offers: ${tx}</p>` : ""}
+        <div class="detail-section"><h5>Hours</h5>${hoursHtml}</div>
+        <div class="actions">
+          ${map ? `<a class="fill" href="${map}" target="_blank" rel="noopener">Directions</a>` : ""}
+          ${b.yelp_url ? `<a class="outline" href="${safeUrl(b.yelp_url)}" target="_blank" rel="noopener">Yelp</a>` : ""}
+          ${b.contact && b.contact.website ? `<a class="outline" href="${safeUrl(b.contact.website)}" target="_blank" rel="noopener">Website</a>` : ""}
+          ${b.osm_url ? `<a class="outline" href="${safeUrl(b.osm_url)}" target="_blank" rel="noopener">Map data</a>` : ""}
+        </div>
+        <div class="provenance">Sources: ${prov} · SBP v1.0</div>
+      `;
+      panel.querySelector(".close").onclick = () => panel.classList.remove("open");
     }
 
-    function runSearch() {
+    async function runSearch() {
       const q = document.getElementById("q").value.trim();
-      const hood = document.getElementById("neighborhood").value;
-      const list = BUSINESSES.filter((b) => matches(b, q, hood, activeTag));
-      renderCards(list);
-      renderStats(list);
+      const loc = buildSearchLocation();
+      const zip = selectedZip();
+
+      const cards = document.getElementById("cards");
+      cards.innerHTML = '<p class="loading">Searching' + (zip ? ` in ZIP ${esc(zip)}` : "") + '...</p>';
+
+      const params = new URLSearchParams({
+        location: loc,
+        radius: zip ? "5000" : "8000",
+        limit: zip ? "50" : "30",
+        fast: "true",
+      });
+      if (zip) params.set("zip", zip);
+      const term = q || (CATEGORY_BROWSE.find((c) => c.id === activeCategory) || {}).term || "";
+      if (term) params.set("term", term);
+      if (userCoords) {
+        params.set("lat", String(userCoords.lat));
+        params.set("lon", String(userCoords.lon));
+      }
+
+      try {
+        const r = await fetch(`${API_BASE}/businesses/search?${params}`);
+        const data = await r.json();
+        if (!r.ok) {
+          cards.innerHTML = `<div class="error-msg">${esc(data.error || "Search failed")}${data.hint ? " — " + esc(data.hint) : ""}</div>`;
+          return;
+        }
+        lastResults = data.businesses || [];
+        const prov = (data.provenance && data.provenance.source) || "";
+        yelpEnabled = prov.includes("Yelp");
+        const ds = data.query_summary?.data_source || "live";
+        document.getElementById("trustBadge").dataset.source = ds;
+        const score = data.query_summary?.quality_summary?.completeness_score;
+        const n = data.query_summary?.records_in_this_batch || lastResults.length;
+        document.getElementById("trustBadge").textContent =
+          `${n} live results · ${ds}` + (score != null ? ` · quality ${Math.round(score * 100)}%` : "");
+        updateTagFilters(lastResults);
+        let filtered = tagFilter(clientFilter(lastResults));
+        if (zip && !filtered.length && lastResults.length) {
+          cards.innerHTML = `<p style='color:var(--muted)'>No listings with ZIP ${esc(zip)} in this batch. Try <strong>Any ZIP</strong> or a broader search.</p>`;
+          renderStats([]);
+          return;
+        }
+        renderCards(filtered);
+        renderStats(filtered);
+      } catch (err) {
+        cards.innerHTML = `<div class="error-msg">Cannot reach API at ${esc(API_BASE)}. Start Flask: flask --app app run -p 5002</div>`;
+      }
     }
 
-    const allTags = [...new Set(BUSINESSES.flatMap((b) => b.tags || []))].sort();
-    document.getElementById("tagFilters").innerHTML = allTags.map((t) =>
-      `<button type="button" data-tag="${t}">${t}</button>`
-    ).join("");
-    document.getElementById("tagFilters").addEventListener("click", (e) => {
-      const btn = e.target.closest("button[data-tag]");
-      if (!btn) return;
-      activeTag = activeTag === btn.dataset.tag ? "" : btn.dataset.tag;
-      document.querySelectorAll("#tagFilters button").forEach((b) =>
-        b.classList.toggle("active", b.dataset.tag === activeTag)
+    function renderCategoryFilters() {
+      document.getElementById("categoryFilters").innerHTML = CATEGORY_BROWSE.map((c) =>
+        `<button type="button" data-cat="${c.id}">${esc(c.label)}</button>`
+      ).join("");
+      document.querySelectorAll("#categoryFilters button").forEach((btn) => {
+        btn.classList.toggle("active", btn.dataset.cat === activeCategory);
+        btn.addEventListener("click", () => {
+          activeCategory = btn.dataset.cat;
+          const cat = CATEGORY_BROWSE.find((x) => x.id === activeCategory);
+          if (cat && cat.term) document.getElementById("q").value = "";
+          document.querySelectorAll("#categoryFilters button").forEach((b) =>
+            b.classList.toggle("active", b.dataset.cat === activeCategory)
+          );
+          runSearch();
+        });
+      });
+    }
+
+    function useNearMe() {
+      if (!navigator.geolocation) {
+        alert("Location is not available in this browser.");
+        return;
+      }
+      document.getElementById("nearMeBtn").textContent = "Locating...";
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          userCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+          document.getElementById("location").value = "Near me";
+          document.getElementById("nearMeBtn").textContent = "Near me";
+          runSearch();
+        },
+        () => {
+          document.getElementById("nearMeBtn").textContent = "Near me";
+          alert("Could not get your location. Enter a city or neighborhood instead.");
+        },
+        { enableHighAccuracy: false, timeout: 12000 }
       );
-      runSearch();
-    });
-    document.getElementById("searchBtn").addEventListener("click", runSearch);
-    document.getElementById("q").addEventListener("keydown", (e) => { if (e.key === "Enter") runSearch(); });
+    }
 
-    const api = new URLSearchParams(location.search).get("api");
-    if (api) {
-      fetch(`${api.replace(/\/$/, "")}/businesses/search?term=coffee&location=Capitol Hill`)
-        .then((r) => r.json())
-        .then((data) => {
-          if (data.businesses && data.businesses.length) {
-            document.getElementById("trustBadge").textContent =
-              `Data quality ${Math.round((data.query_summary?.quality_summary?.completeness_score || 0.92) * 100)}%`;
-          }
-        })
-        .catch(() => {});
+    async function init() {
+      renderCategoryFilters();
+      document.getElementById("nearMeBtn").addEventListener("click", useNearMe);
+      document.getElementById("navExplore").addEventListener("click", (e) => {
+        e.preventDefault();
+        activeCategory = "all";
+        document.getElementById("q").value = "";
+        userCoords = null;
+        document.getElementById("location").value = "Seattle, WA";
+        document.querySelectorAll("#categoryFilters button").forEach((b) =>
+          b.classList.toggle("active", b.dataset.cat === "all")
+        );
+        runSearch();
+      });
+
+      const banner = document.getElementById("banner");
+      try {
+        const r = await fetch(`${API_BASE}/config`);
+        const cfg = await r.json();
+        yelpEnabled = cfg.yelp_configured;
+        const parts = ["OpenStreetMap (live)"];
+        if (cfg.yelp_configured) parts.unshift("Yelp Fusion");
+        banner.textContent = "Live data: " + parts.join(" + ") + " → SBP v1.0 API";
+        if (cfg.yelp_configured) banner.classList.add("yelp-on");
+      } catch (_) {
+        banner.textContent = "API offline — start Flask on port 5002";
+      }
+
+      document.getElementById("tagFilters").addEventListener("click", (e) => {
+        const btn = e.target.closest("button[data-tag]");
+        if (!btn) return;
+        activeTag = activeTag === btn.dataset.tag ? "" : btn.dataset.tag;
+        document.querySelectorAll("#tagFilters button").forEach((b) =>
+          b.classList.toggle("active", b.dataset.tag === activeTag)
+        );
+        renderCards(tagFilter(clientFilter(lastResults)));
+        renderStats(tagFilter(clientFilter(lastResults)));
+      });
+      document.getElementById("searchBtn").addEventListener("click", runSearch);
+      document.getElementById("q").addEventListener("keydown", (e) => { if (e.key === "Enter") runSearch(); });
+      document.getElementById("zipFilter").addEventListener("change", () => {
+        if (selectedZip()) {
+          document.getElementById("location").value = "Seattle, WA";
+          userCoords = null;
+        }
+        runSearch();
+      });
+
+      await runSearch();
     }
-    runSearch();
-    if (location.hash === "#detail-demo") {
-      setTimeout(() => openDetail("sb-001"), 400);
-    }
-    window.addEventListener("message", (e) => {
-      if (e.data === "open-first") openDetail("sb-001");
-    });
+
+    init();
   </script>
 </body>
 </html>

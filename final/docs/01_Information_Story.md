@@ -1,7 +1,8 @@
-# Information Story — Neighborhood Small Business Discovery Platform (SBP)
+# Information Story — LocalFind (SBP v1.0)
 
 **Course:** IMT 542 A Sp 26 — Portable Information Structures  
-**Final Project** | **Author:** Sneha
+**Final Project** | **Author:** Sneha Reddy  
+**Repository:** https://github.com/Sneha-8/IMT-542/tree/main/final
 
 ---
 
@@ -9,99 +10,84 @@
 
 | Persona | Goal | Pain today |
 |---------|------|------------|
-| **Local resident (Alex)** | Find independent shops, cafes, and services near home that match values (sustainable, women-owned, open now) | Yelp/Google mix chains with locals; filters are ad-driven and incomplete |
-| **Small-business owner (Maya)** | Confirm how her shop appears in public discovery feeds | Data is scattered across Yelp, Instagram, and chamber-of-commerce PDFs with no single portable record |
-| **Civic / developer (Jordan)** | Build a neighborhood dashboard or agent that recommends local businesses | No clean JSON API with provenance, quality flags, and stable schema |
+| **Local resident (Alex)** | Find independent shops and services nearby (fashion, fitness, food, repair, etc.) | Yelp/Google favor chains and ads; no single filter for neighborhood + category + trust |
+| **Small-business owner (Maya)** | See how her shop appears in discovery feeds | Listings differ across Yelp, Instagram, and chamber sites |
+| **Civic / developer (Jordan)** | Build a neighborhood map, newsletter, or agent | No stable JSON API with provenance and quality metrics |
 
 ## 2. Problem statement
 
-Information about small businesses exists, but it is **not portable**: it is locked in proprietary apps (Yelp, Google Maps), unstructured social posts, and static HTML directories. Residents who want to **support local commerce** cannot easily combine “open now,” “tags,” “price range,” and “neighborhood” in one machine-readable query. Our **information story** is:
+Small-business information exists but is **not portable**: it is locked in Yelp, Google Maps, HTML directories, and social posts. Residents who want to **support local commerce** cannot combine neighborhood, category, hours, and ratings in one machine-readable query.
 
-> *As a Seattle resident, I want a single, trustworthy JSON feed of neighborhood small businesses so I can discover and support local shops that match my needs—without re-scraping five different websites.*
+**Information story:**
+
+> *As a Seattle resident, I want a single, trustworthy feed of neighborhood small businesses (shops, salons, gyms, cafes, and more) so I can discover and support local businesses near me—without re-scraping five different websites.*
 
 ## 3. Transcendent / community goal
 
-Keeping spending in **locally owned businesses** strengthens neighborhoods (tax base, jobs, character). A portable structure makes that choice **easier to automate** (maps, chatbots, community newsletters) and **easier to audit** (provenance, completeness scores).
+Spending at locally owned businesses strengthens neighborhoods (jobs, character, tax base). A **portable structure** makes that choice easier to automate (newsletters, maps, accessibility tools) and easier to **audit** (provenance, completeness scores).
 
 ## 4. Insight area (course taxonomy)
 
-**Primary:** Visualize info to a human (search UI + JSON for BI tools)  
-**Secondary:** Analyze relationships (category stats, graph of tags/neighborhoods via I8 KG variant)
+| Type | How LocalFind delivers |
+|------|------------------------|
+| **Primary — Visualize info to a human** | LocalFind web UI: search, category browse, neighborhood filter, detail modal with hours, ratings, directions |
+| **Secondary — Analyze relationships** | Sidebar stats by category; JSON API for BI tools (`GET /stats`) |
 
 ## 5. Requirements (in scope)
 
 | ID | Requirement |
 |----|-------------|
 | R1 | Return businesses as **SBP schema v1.0** JSON with `schema_version`, `provenance`, `query_summary` |
-| R2 | **Search** by keyword, category, neighborhood, ZIP, tags, price range |
-| R3 | **Single-record** fetch by stable `id` |
+| R2 | **Search** by keyword, category, neighborhood, location (including lat/lon “near me”) |
+| R3 | **Single-record** fetch by stable `id` with enriched hours on detail |
 | R4 | Attach **quality_flags** and **completeness_score** on every list response |
-| R5 | Mark **data_classification**; strip restricted `contact` fields unless `Authorization: Bearer` token present |
-| R6 | Expose via **HTTPS REST API** (Flask + ngrok for demo) |
-| R7 | Store canonical records in **NoSQL** (MongoDB / Mongita) for indexed queries |
-| R8 | Document **FAIR** assessment of upstream sources and remediation for gaps |
+| R5 | **data_classification**; strip restricted `contact` unless valid Bearer token |
+| R6 | Expose via **HTTPS REST API** (Flask; ngrok for Canvas) |
+| R7 | Store records in **NoSQL** (MongoDB/Mongita); cache live API results |
+| R8 | Integrate **real upstream APIs** (Yelp Fusion + OpenStreetMap) with FAIR documentation |
+| R9 | **LocalFind web prototype** for end-to-end discover → detail flow |
 
 ## 6. Out of scope
 
-- Real-time Yelp Fusion integration in production (documented as upstream source; demo uses curated Seattle dataset)
-- Payments, reservations, or user accounts
-- Mobile native apps (API-only deliverable; wireframes show a future web client)
+- Payments, reservations, user accounts, owner self-service editing
+- National coverage (Seattle metro focus)
+- Native mobile apps
+- Scraping Google Maps or Instagram (documented as silos only)
 
-## 7. Wireframes (conceptual)
+## 7. Wireframes (implemented in LocalFind)
 
-### 7.1 Home / search
+### 7.1 Search home
 
-```
-+--------------------------------------------------+
-|  Neighborhood Small Business Finder              |
-|  [ Search: bakery, vegan, wifi...          ] [Go]|
-|  Neighborhood [ Capitol Hill v ]  ZIP [ 98122 ]  |
-+--------------------------------------------------+
-|  3 results · completeness 92% · via SBP API v1.0 |
-+--------------------------------------------------+
-|  Brew & Bloom Coffee        * 4.7  cafe          |
-|  412 Pine St · Open today 7am-6pm                |
-|  tags: coffee, vegan-options, wifi               |
-+--------------------------------------------------+
-|  Green Leaf Bookstore       * 4.8  retail        |
-|  ...                                             |
-+--------------------------------------------------+
-```
+- Category chips: All nearby, Food, Fashion, Fitness, Shops, Services, Beauty, Pets, Books, Home  
+- Search box + location + neighborhood dropdown + **Near me**  
+- Result cards: name, rating, category, tags, photo (Yelp when available)
 
 ### 7.2 Business detail
 
-```
-+--------------------------------------------------+
-|  <- Back          Brew & Bloom Coffee            |
-|  Category: cafe · Capitol Hill · est. 2018       |
-|  [ Call ] [ Website ] [ Instagram ]              |
-+--------------------------------------------------+
-|  Hours today: 7am-6pm (Mon)                      |
-|  Products: House Drip $3.50 · Lavender Latte ... |
-|  Owner: Maya Chen · Accepts online orders        |
-+--------------------------------------------------+
-|  Data: SBP v1.0 · source: curated_local_v1       |
-|  Retrieved: 2026-05-23T... · license: CC-BY-4.0  |
-+--------------------------------------------------+
-```
+- Address, type, description, rating, review count  
+- Compact hours (today highlighted; grouped weekdays)  
+- Actions: Directions, Yelp, website, OpenStreetMap  
+- Provenance footer (SBP v1.0)
 
-### 7.3 API consumer (developer)
+### 7.3 API consumer
 
 ```
-GET /businesses/search?term=coffee&location=Capitol%20Hill
--> 200 application/json (SBP envelope + businesses[])
+GET /businesses/search?term=fashion&location=Capitol%20Hill,%20Seattle,%20WA&fast=true
+GET /businesses/{id}?full=1
+GET /schema
 ```
 
 ## 8. User stories
 
-1. **As Alex**, I want to filter by neighborhood and tag `wifi` so I can work from a local cafe.  
-2. **As Alex**, I want `open-now` so I do not walk to a closed shop.  
-3. **As Maya**, I want a stable `id` and public fields separated from owner contact so I control what is shared.  
-4. **As Jordan**, I want `provenance` and `quality_flags` so I can trust the feed in a civic dashboard.
+1. **As Alex**, I want to browse **fashion** businesses in **Capitol Hill** so I can shop local boutiques.  
+2. **As Alex**, I want **near me** search so I can find businesses close to my current location.  
+3. **As Alex**, I want **hours and directions** on a detail page so I can visit today.  
+4. **As Jordan**, I want `provenance` and `quality_flags` so I can trust the feed in a civic dashboard.  
+5. **As Jordan**, I want responses in &lt;1 second when cached so the UI feels usable.
 
-## 9. Success criteria (aligned with rubric)
+## 9. Success criteria (rubric alignment)
 
-- Information story is clear; no fields in API responses outside story scope  
-- Requirements define scope; portable structure differs from Yelp/HTML on **structure, format, and access**  
-- System is reachable and returns correct, complete data per story  
-- Quality and performance are measured and documented with remediation plans
+- Clear information story; API fields match story scope  
+- Requirements define in/out of scope; portable structure differs from Yelp/OSM on **information, structure, format, access**  
+- System reachable: UI + API return correct data for live and curated sources  
+- Quality and performance measured in [04_Quality_Performance_Security.md](04_Quality_Performance_Security.md)

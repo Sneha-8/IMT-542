@@ -1,9 +1,9 @@
 # FAIR Assessment — Existing Information vs. SBP Information Story
 
-**Project:** Neighborhood Small Business Discovery Platform (SBP)  
-**Author:** Sneha | **Course:** IMT 542
+**Project:** LocalFind / Neighborhood Small Business Platform (SBP)  
+**Author:** Sneha Reddy | **Course:** IMT 542 A Sp 26
 
-We assess **Findable, Accessible, Interoperable, Reusable** properties of information sources used *before* our portable structure, then contrast with the **new SBP v1.0** structure.
+We assess **Findable, Accessible, Interoperable, Reusable** properties of information sources used *before* our portable structure, then contrast with the **new SBP v1.0** structure and **live integrations** in the final build.
 
 ---
 
@@ -11,11 +11,12 @@ We assess **Findable, Accessible, Interoperable, Reusable** properties of inform
 
 | Source | Format | Typical access | Original use case |
 |--------|--------|----------------|-------------------|
-| **Yelp Fusion API** | Nested JSON | HTTPS + API key | Consumer search & ads |
+| **Yelp Fusion API** | Nested JSON | HTTPS + API key | Consumer search, ratings, ads |
+| **OpenStreetMap** (Nominatim + Overpass) | GeoJSON / tags | HTTPS, no key (usage policy) | Community map data |
 | **Google Maps / Places** | JSON (limited export) | Web UI + partial API | Navigation |
 | **Chamber / neighborhood HTML directories** | HTML tables | Browser | Static listings |
-| **Owner social (Instagram)** | Unstructured posts | App / scrape | Marketing |
-| **Our I7 `small_businesses.json`** | Flat JSON file | File read at startup | Class API prototype |
+| **Owner social (Instagram)** | Unstructured posts | App | Marketing |
+| **I7 `small_businesses.json`** | Flat JSON | File at startup | Class API prototype |
 
 ---
 
@@ -25,30 +26,41 @@ We assess **Findable, Accessible, Interoperable, Reusable** properties of inform
 
 | Principle | Rating | Evidence |
 |-----------|--------|----------|
-| **Findable** | Partial | IDs exist; no persistent DOI; search is query-dependent |
-| **Accessible** | Partial | HTTPS + key; rate limits; display-only license blocks redistribution |
-| **Interoperable** | Low | Custom nested schema; categories as Yelp aliases not Schema.org |
-| **Reusable** | Low | Terms restrict storage/redistribution; provenance not in payload |
+| **Findable** | Partial | Business IDs exist; search is query-dependent; no DOI |
+| **Accessible** | Partial | HTTPS + API key; rate limits; terms limit redistribution |
+| **Interoperable** | Low | Nested schema; Yelp category aliases; no quality metadata |
+| **Reusable** | Low | Display-only license; no provenance in payload |
 
-**Gaps for our story:** Cannot freely republish for civic tools; phone/address shapes vary; no `quality_flags` or `completeness_score`; contact mixed with public fields.
+**Gaps for our story:** Cannot ethically republish raw Yelp dumps for civic tools; must normalize, attribute, and cache under license terms.
+
+### OpenStreetMap
+
+| Principle | Rating | Evidence |
+|-----------|--------|----------|
+| **Findable** | Partial | OSM node/way IDs; geographic indexing |
+| **Accessible** | Partial | Free API; usage policy (throttle, attribution) |
+| **Interoperable** | Partial | Tag-based schema; uneven hours/contact coverage |
+| **Reusable** | **High** | ODbL 1.0 with attribution — strong for civic reuse |
+
+**Role in LocalFind:** Baseline real business names, addresses, coordinates without API key cost.
 
 ### HTML neighborhood directories
 
 | Principle | Rating | Evidence |
 |-----------|--------|----------|
-| **Findable** | Low | No stable IDs; SEO URLs only |
-| **Accessible** | Partial | Public HTTP but human-oriented layout |
-| **Interoperable** | Low | No schema; scraping breaks on redesign |
-| **Reusable** | Low | Unclear license; no machine metadata |
+| **Findable** | Low | No stable IDs |
+| **Accessible** | Partial | Public HTTP, human layout |
+| **Interoperable** | Low | No schema; scraping fragile |
+| **Reusable** | Low | Unclear license |
 
-### I7 static JSON (in-repo prototype)
+### I7 static JSON (class prototype)
 
 | Principle | Rating | Evidence |
 |-----------|--------|----------|
-| **Findable** | Partial | GitHub path + `id` field |
-| **Accessible** | Partial | File on disk; API only after manual deploy |
-| **Interoperable** | Partial | Consistent keys but non-standard vocabulary |
-| **Reusable** | Partial | No license block; no versioning or provenance |
+| **Findable** | Partial | GitHub path + `id` |
+| **Accessible** | Partial | File on disk until API deployed |
+| **Interoperable** | Partial | Consistent keys, non-standard vocabulary |
+| **Reusable** | Partial | No version or provenance block |
 
 ---
 
@@ -56,13 +68,14 @@ We assess **Findable, Accessible, Interoperable, Reusable** properties of inform
 
 | From (existing) | To (SBP v1.0) | Why |
 |-----------------|---------------|-----|
-| Yelp nested `location.display_address[]` | `location.address_line_1`, `city`, `state`, `zip_code`, `coordinates` | Portable address parsing |
-| Raw phone strings | `contact.phone_e164` | International interoperability |
-| Implicit completeness | `quality_flags` + `query_summary.quality_summary` | Consumers filter without re-validation |
-| Missing lineage | `provenance` block on every response | Reusability & license compliance |
-| Monolithic contact object | `data_classification` + auth-gated fields | Security / privacy (FAIR Accessible) |
-| In-memory list (I7) | NoSQL documents + indexes (I8/final) | Performance & flexible schema |
-| Ad-hoc JSON | `schema_version: "1.0"` + published JSON Schema at `GET /schema` | Interoperability |
+| Yelp `location.display_address[]` | `location.address_line_1`, `city`, `state`, `zip_code`, `coordinates` | Portable address |
+| OSM tags (`opening_hours`, `shop`) | SBP `hours`, `categories` | Machine-readable listing |
+| Raw phone strings | `contact.phone_e164` | Interoperability |
+| Implicit completeness | `quality_flags` + `query_summary.quality_summary` | Trust without re-validation |
+| Missing lineage | `provenance` on every response | Reuse + license compliance |
+| Mixed contact fields | `data_classification` + Bearer auth | Privacy (FAIR Accessible) |
+| I7 in-memory list | NoSQL + `live_businesses` cache | Performance at scale |
+| Vendor-specific JSON | `schema_version: "1.0"` + `GET /schema` | Contract for partners |
 
 ---
 
@@ -70,23 +83,30 @@ We assess **Findable, Accessible, Interoperable, Reusable** properties of inform
 
 | Principle | How SBP addresses it |
 |-----------|----------------------|
-| **Findable** | Stable `id` per business; `schema_version`; GitHub repo URL in `provenance.repository` |
-| **Accessible** | REST over HTTPS; `GET /health`; public vs restricted fields; standard HTTP errors |
-| **Interoperable** | Schema.org-aligned categories; JSON Schema contract; E.164 phones |
-| **Reusable** | `provenance.license`, `retrieved_at`, `source`; CC-BY-4.0 on curated demo dataset |
+| **Findable** | Stable `id` (`yelp-id`, `osm-node-*`, `sb-*`); `schema_version`; repo URL in `provenance.repository` |
+| **Accessible** | REST over HTTPS; `/health`, `/config`; public vs restricted fields; HTTP error codes |
+| **Interoperable** | JSON Schema; E.164 phones; normalized category slugs; envelope pattern |
+| **Reusable** | `provenance.source`, `retrieved_at`, `license` (OSM ODbL + Yelp terms); documented transforms in `normalizer.py` |
 
 ---
 
 ## Deficiencies remediated in final build
 
-1. **No provenance** → every API response includes `provenance`  
-2. **No quality metrics** → `quality_flags` per record + `completeness_score` in `query_summary`  
-3. **No access control** → Bearer token unlocks full `contact` when `data_classification` is `restricted`  
-4. **Poor query performance** → MongoDB indexes on `id`, `category`, `location.zip`, `tags`, `communityRating`  
-5. **No contract testing** → `jsonschema` validation in CI (`tests/`)
+1. **No provenance** → every API response includes `provenance` and `query_summary`  
+2. **No quality metrics** → `quality_flags` per record + `completeness_score`  
+3. **No access control** → Bearer `SBP_API_TOKEN` unlocks restricted `contact`  
+4. **Slow repeat queries** → MongoDB/Mongita cache (`live_businesses`); `fast=true` serves cache in &lt;100 ms  
+5. **Single-source bias** → Yelp + OSM merged in `live_search.py` with name-based enrichment  
+6. **No contract testing** → 12 `pytest` tests + `jsonschema` validation  
 
 ---
 
-## Data used in demo
+## Data used in the running system
 
-The running system uses a **curated Seattle small-business dataset** (`small_businesses.json`, 6 records) normalized to SBP v1.0. Yelp is documented as the **production upstream** we would integrate when a team API key is available (see `G8/G8_AccessMethodology.md`). This satisfies the assignment’s “existing information” analysis while keeping the demo reproducible without secrets.
+| Layer | Description | FAIR note |
+|-------|-------------|-----------|
+| **Live cache** | 500+ businesses from Yelp Fusion + OpenStreetMap across 60+ category queries and 15 neighborhood sweeps | Provenance per request; Yelp terms respected |
+| **Curated demo** | 6 Seattle businesses in `small_businesses.json` | CC-BY-4.0; used for `source=local` tests |
+| **Categories** | Food, fashion, fitness, retail, services, beauty, pets, books, home, and more | Demonstrates portability beyond restaurants |
+
+Implementation: `yelp_client.py`, `osm_client.py`, `live_search.py`, `scripts/populate_live_data.py`.

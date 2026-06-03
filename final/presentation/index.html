@@ -3,91 +3,62 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>LocalFind — IMT 542 Final Presentation</title>
+  <title>LocalFind — Final Presentation (v4)</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css" />
   <style>
     :root { --accent: #4b2e83; --soft: #f4f1f9; }
     .reveal { font-family: "DM Sans", "Segoe UI", system-ui, sans-serif; }
-    .reveal h1, .reveal h2, .reveal h3 {
-      color: var(--accent);
-      text-transform: none;
-      font-weight: 600;
+    .reveal h1, .reveal h2, .reveal h3 { color: var(--accent); text-transform: none; font-weight: 600; }
+    .reveal h1 { font-size: 1.9em; }
+    .reveal h2 { font-size: 1.3em; }
+    .reveal p, .reveal li { font-size: 0.76em; line-height: 1.45; color: #333; }
+    .reveal .lead { font-size: 0.85em; color: #444; max-width: 40em; margin: 0 auto 0.5em; }
+    .reveal .small { font-size: 0.6em; color: #666; }
+    .reveal .section-label {
+      font-size: 0.52em; text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--accent); margin-bottom: 0.15em;
     }
-    .reveal h1 { font-size: 2em; line-height: 1.15; }
-    .reveal h2 { font-size: 1.45em; }
-    .reveal p, .reveal li { font-size: 0.82em; line-height: 1.55; color: #333; }
-    .reveal .lead { font-size: 0.95em; color: #555; max-width: 36em; margin: 0 auto; }
-    .reveal .small { font-size: 0.68em; color: #666; }
-    .reveal blockquote {
-      background: var(--soft);
-      border-left: 4px solid var(--accent);
-      padding: 0.8em 1.2em;
-      font-style: normal;
-      width: 90%;
-      margin: 1em auto;
-      box-shadow: none;
+    .reveal table { font-size: 0.56em; margin: 0.4em auto; border-collapse: collapse; width: 96%; }
+    .reveal th { background: var(--accent); color: #fff; padding: 0.35em; }
+    .reveal td { padding: 0.3em 0.45em; border-bottom: 1px solid #e5e5e5; vertical-align: top; }
+    .reveal .grid2 {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.9em;
+      text-align: left; font-size: 0.68em; width: 96%; margin: 0.5em auto;
     }
-    .reveal blockquote p { margin: 0; }
-    .reveal .story-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5em;
-      text-align: left;
-      font-size: 0.75em;
-      width: 95%;
-      margin: 0 auto;
+    .reveal .story-box {
+      background: var(--soft); border-radius: 10px; padding: 0.75em 1em;
+      text-align: left; max-width: 40em; margin: 0.5em auto;
     }
-    .reveal .story-grid h3 { font-size: 1em; margin-bottom: 0.4em; }
+    .reveal .story-box h3 { font-size: 0.95em; margin-bottom: 0.35em; }
     .reveal .flow {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.35em;
-      font-size: 0.62em;
-      margin: 1em 0;
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+      gap: 0.25em; font-size: 0.55em; margin: 0.5em 0;
     }
     .reveal .flow span {
-      background: var(--soft);
-      padding: 0.45em 0.7em;
-      border-radius: 8px;
-      color: var(--accent);
-      font-weight: 500;
+      background: var(--soft); padding: 0.35em 0.6em; border-radius: 8px;
+      color: var(--accent); font-weight: 500;
     }
-    .reveal .flow .arrow { background: none; color: #999; padding: 0; }
+    .reveal .flow .arr { background: none; color: #999; }
+    .reveal .fair-good { color: #0d7a4e; font-weight: 600; }
+    .reveal .fair-mid { color: #b45309; font-weight: 600; }
+    .reveal .fair-low { color: #b91c1c; font-weight: 600; }
+    .reveal pre {
+      font-size: 0.42em; text-align: left; max-height: 340px; margin: 0;
+      background: #1e1e24; color: #e8e8ed; border-radius: 10px; padding: 0.7em;
+    }
+    .reveal ul { text-align: left; max-width: 36em; margin: 0.25em auto; }
+    .reveal .tradeoff {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5em;
+      font-size: 0.6em; text-align: left; width: 96%; margin: 0.4em auto;
+    }
+    .reveal .tradeoff div { background: var(--soft); padding: 0.55em; border-radius: 8px; }
+    .reveal .tradeoff h4 { color: var(--accent); font-size: 1.05em; margin-bottom: 0.25em; }
     .reveal .mockup-frame {
-      width: 100%;
-      height: 72vh;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-      background: #fff;
+      width: 100%; height: 68vh; border: 1px solid #ddd; border-radius: 12px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.1);
     }
-    .reveal section.mockup-slide { padding: 0 !important; }
-    .reveal section.mockup-slide h2 {
-      position: absolute;
-      top: 0.4em;
-      left: 0;
-      right: 0;
-      z-index: 2;
-      font-size: 1em;
-      background: rgba(255,255,255,0.92);
-      padding: 0.3em;
-    }
-    .reveal section.mockup-slide .mockup-wrap {
-      margin-top: 2.2em;
-      height: calc(100% - 2.2em);
-    }
-    .reveal .two-shot {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.75em;
-      width: 100%;
-      height: 65vh;
-    }
-    .reveal .two-shot iframe { height: 100%; border-radius: 10px; border: 1px solid #ddd; }
-    .reveal ul { text-align: left; max-width: 32em; margin: 0 auto; }
     .reveal a { color: #2563eb; }
   </style>
 </head>
@@ -96,175 +67,174 @@
     <div class="slides">
 
       <section>
+        <p class="section-label">IMT 542 Final Project</p>
         <h1>LocalFind</h1>
-        <p class="lead">Helping Seattle residents discover and support independent neighborhood businesses through portable, trustworthy information.</p>
-        <p class="small">Sneha Reddy &middot; IMT 542 &middot; Spring 2026</p>
-        <p class="small"><a href="https://github.com/Sneha-8/IMT-542/tree/main/final" target="_blank">github.com/Sneha-8/IMT-542</a></p>
+        <p class="lead">One place to discover small businesses in your neighborhood.</p>
+        <p class="small">Sneha Reddy · Spring 2026 · github.com/Sneha-8/IMT-542</p>
       </section>
 
+      <!-- 1: Information story (all on one slide) -->
       <section>
-        <h2>Meet Alex</h2>
-        <blockquote>
-          <p>Alex lives in Capitol Hill and wants to grab coffee from a <strong>local</strong> shop — somewhere with vegan options and Wi-Fi — not another chain. They open Yelp, scroll past sponsored results, jump to Instagram, then give up and default to Starbucks.</p>
-        </blockquote>
-        <p class="lead">The information exists. It is just scattered, locked in apps, and hard to combine for a simple decision.</p>
-      </section>
-
-      <section>
-        <h2>Why this matters</h2>
-        <ul>
-          <li>Money spent locally circulates longer in the neighborhood economy.</li>
-          <li>Small businesses lack the SEO and ad budgets of national chains.</li>
-          <li>Civic groups, newsletters, and accessibility tools need <strong>machine-readable</strong> listings — not screenshots of HTML directories.</li>
-        </ul>
-        <p class="lead" style="margin-top:1em">We set out to turn fragmented business information into one portable product: <strong>LocalFind</strong>.</p>
-      </section>
-
-      <section>
-        <h2>Where the information lives today</h2>
-        <div class="story-grid">
-          <div>
-            <h3>Sources people use</h3>
+        <p class="section-label">Information story</p>
+        <h2>Who it helps and why</h2>
+        <div class="story-box">
+          <h3>The story</h3>
+          <p><strong>Community members</strong> want to find small businesses around them — cafes, salons, boutiques, repair shops — without jumping between apps.</p>
+        </div>
+        <div class="grid2" style="margin-top:0.6em">
+          <div class="story-box">
+            <h3>Who benefits</h3>
             <ul>
-              <li>Yelp and Google Maps (proprietary, ad-driven)</li>
-              <li>Chamber of commerce HTML pages</li>
-              <li>Instagram and owner websites</li>
-              <li>Word of mouth</li>
+              <li><strong>Residents</strong> — discover shops they did not know existed nearby</li>
+              <li><strong>Small-business owners</strong> — more discoverability when listings are easier to find in one feed</li>
             </ul>
           </div>
-          <div>
-            <h3>What goes wrong</h3>
+          <div class="story-box">
+            <h3>Why it matters</h3>
             <ul>
-              <li>No stable ID across systems</li>
-              <li>Cannot filter “open now + wifi + sustainable” in one query</li>
-              <li>No provenance — hard to trust for civic reuse</li>
-              <li>Owner contact mixed with public fields</li>
+              <li>Many local shops are invisible next to big chains on general search</li>
+              <li>Supporting nearby businesses keeps money in the community</li>
+              <li>One simple search beats checking Yelp, Google, and social separately</li>
             </ul>
           </div>
         </div>
       </section>
 
+      <!-- 2: Current problems -->
       <section>
-        <h2>The information journey we designed for</h2>
-        <div class="flow">
-          <span>Curated &amp; public sources</span>
-          <span class="arrow">&rarr;</span>
-          <span>Normalize to one schema</span>
-          <span class="arrow">&rarr;</span>
-          <span>Store in document database</span>
-          <span class="arrow">&rarr;</span>
-          <span>REST API</span>
-          <span class="arrow">&rarr;</span>
-          <span>LocalFind experience</span>
-        </div>
-        <p class="lead">Each step adds structure so the <em>same</em> facts can power a website, a map layer, a neighborhood newsletter, or an AI assistant — without re-scraping five sites.</p>
+        <p class="section-label">The problem today</p>
+        <h2>People cannot see what is already around them</h2>
+        <ul>
+          <li>Most people <strong>do not know</strong> how many small businesses exist near home or work</li>
+          <li>There is <strong>no single way</strong> to answer “what local shops are near me?”</li>
+          <li>Information is <strong>split across many sources</strong> — Yelp, Google Maps, Instagram, chamber websites, owner pages</li>
+          <li>Each source uses different fields, rankings (often ads), and rules — so every search feels like starting over</li>
+        </ul>
+        <p class="lead" style="margin-top:0.7em">The data exists. It is just not combined in a form people can actually use.</p>
       </section>
 
+      <!-- 3: FAIR — both sources on one slide -->
       <section>
-        <h2>What LocalFind does for people</h2>
-        <div class="story-grid">
+        <p class="section-label">Existing information</p>
+        <h2>FAIR assessment — our two live sources</h2>
+        <table>
+          <tr>
+            <th>FAIR principle</th>
+            <th>Yelp Fusion API</th>
+            <th>OpenStreetMap</th>
+          </tr>
+          <tr>
+            <td><strong>Findable</strong></td>
+            <td class="fair-mid">Partial — IDs exist, no stable civic URI</td>
+            <td class="fair-mid">Partial — node/way IDs, geo search</td>
+          </tr>
+          <tr>
+            <td><strong>Accessible</strong></td>
+            <td class="fair-mid">Partial — API key, rate limits, terms</td>
+            <td class="fair-mid">Partial — free but throttled; attribution required</td>
+          </tr>
+          <tr>
+            <td><strong>Interoperable</strong></td>
+            <td class="fair-low">Low — Yelp-specific schema and categories</td>
+            <td class="fair-mid">Partial — tag-based; uneven hours/contact</td>
+          </tr>
+          <tr>
+            <td><strong>Reusable</strong></td>
+            <td class="fair-low">Low — display-only; no provenance in payload</td>
+            <td class="fair-good">High — ODbL 1.0 with attribution</td>
+          </tr>
+        </table>
+        <p class="small" style="margin-top:0.6em">Yelp brings ratings, photos, and hours. OSM brings open map data and coordinates. Neither alone fits our community discovery story.</p>
+      </section>
+
+      <!-- 4: Solution — FAIR response + design + JSON -->
+      <section>
+        <p class="section-label">Our solution</p>
+        <h2>SBP v1.0 — one portable structure + LocalFind app</h2>
+        <div class="flow">
+          <span>Yelp</span><span>+</span><span>OSM</span>
+          <span class="arr">&rarr;</span><span>normalizer</span>
+          <span class="arr">&rarr;</span><span>cache</span>
+          <span class="arr">&rarr;</span><span>API</span>
+          <span class="arr">&rarr;</span><span>LocalFind UI</span>
+        </div>
+        <div class="grid2">
           <div>
-            <h3>Residents</h3>
-            <p>Search by keyword, neighborhood, and tags. See ratings, hours, and whether a shop is open today. Support businesses that match their values.</p>
+            <h3 style="font-size:0.85em;color:var(--accent)">Design decisions (FAIR gaps)</h3>
+            <ul style="font-size:0.9em">
+              <li><strong>Findable</strong> — stable <code>id</code>, <code>schema_version</code></li>
+              <li><strong>Accessible</strong> — REST API + web search (ZIP, category, near me)</li>
+              <li><strong>Interoperable</strong> — one JSON shape; Yelp + OSM mapped the same way</li>
+              <li><strong>Reusable</strong> — <code>provenance</code> + <code>quality_flags</code> on every response</li>
+            </ul>
+          </div>
+          <pre><code>{
+  "schema_version": "1.0",
+  "provenance": {
+    "source": "Live merged feed",
+    "license": "ODbL; Yelp display terms"
+  },
+  "businesses": [{
+    "id": "yelp-abc123",
+    "name": "Glasswing",
+    "categories": ["fashion", "retail"],
+    "rating": 4.8,
+    "location": {
+      "address_line_1": "806 E Roy St",
+      "city": "Seattle",
+      "zip_code": "98102"
+    },
+    "hours": { "monday": "11:00-18:00" },
+    "yelp_url": "...",
+    "osm_url": "...",
+    "quality_flags": { "has_address": true }
+  }]
+}</code></pre>
+        </div>
+        <p class="small">We merge both APIs into one record so the app shows name, location, hours, and links in one place.</p>
+      </section>
+
+      <!-- 5: Quality, performance, security -->
+      <section>
+        <p class="section-label">Quality control</p>
+        <h2>Quality, performance, and security tradeoffs</h2>
+        <div class="tradeoff">
+          <div>
+            <h4>Quality</h4>
+            <p>JSON Schema contract; <code>completeness_score</code> per batch</p>
+            <p>12 automated tests (schema, auth, live mocks)</p>
+            <p>Gap: OSM rows may lack ratings — Yelp enriches on detail</p>
           </div>
           <div>
-            <h3>Owners &amp; partners</h3>
-            <p>One consistent public listing. Sensitive contact details stay protected unless the viewer is authorized.</p>
+            <h4>Performance</h4>
+            <p>Cached search ~20–100 ms (<code>fast=true</code>)</p>
+            <p>Live refresh ~15–40 s (Yelp + OSM)</p>
+            <p>Tradeoff: cache speed vs freshest listings</p>
+          </div>
+          <div>
+            <h4>Security</h4>
+            <p>Public responses hide owner phone/email</p>
+            <p>Bearer token unlocks restricted contact</p>
+            <p>API keys only in <code>.env</code>, never in responses</p>
           </div>
         </div>
-        <p class="small" style="margin-top:1em">Behind the scenes, developers get versioned JSON, a published schema, and provenance on every response.</p>
       </section>
 
-      <section class="mockup-slide" data-background-color="#faf9f7">
-        <h2>The product — search and discovery</h2>
-        <div class="mockup-wrap">
-          <iframe class="mockup-frame" src="../web/platform.html" title="LocalFind search view"></iframe>
-        </div>
-        <p class="small">Interactive prototype — try search, filters, and tags in fullscreen (open platform.html separately)</p>
-      </section>
-
-      <section class="mockup-slide" data-background-color="#faf9f7">
-        <h2>The product — business detail</h2>
-        <div class="mockup-wrap">
-          <iframe class="mockup-frame" src="../web/platform.html#detail-demo" title="LocalFind detail view"></iframe>
-        </div>
-        <p class="small">Click any business card in the prototype to see hours, menu items, and actions</p>
-      </section>
-
+      <!-- Demo -->
       <section>
-        <h2>From scattered records to one portable shape</h2>
-        <p class="lead">We did not just move a JSON file online. We redesigned how information is packaged:</p>
-        <ul>
-          <li><strong>Envelope</strong> — every response explains schema version, where data came from, and how complete it is.</li>
-          <li><strong>Records</strong> — each business has split addresses, normalized phones, tags, hours, products, and quality indicators.</li>
-          <li><strong>Access</strong> — HTTPS search and lookup endpoints instead of a static file only a developer can read.</li>
-        </ul>
-        <p class="small">Same facts, but structured so humans and software can rely on them.</p>
-      </section>
-
-      <section>
-        <h2>Trust built into every response</h2>
-        <ul>
-          <li><strong>Provenance</strong> — source, retrieval time, and license travel with the data.</li>
-          <li><strong>Quality signals</strong> — completeness score and per-field flags so consumers know what is missing before they act.</li>
-          <li><strong>Privacy</strong> — email and phone hidden from public API calls; unlocked only with an authorized token for owners or partners.</li>
-        </ul>
-        <p class="lead">This is how we earn reuse by community apps without surprising business owners.</p>
-      </section>
-
-      <section>
-        <h2>How we built it over the quarter</h2>
-        <div class="flow">
-          <span>JSON file + Flask API</span>
-          <span class="arrow">&rarr;</span>
-          <span>MongoDB + richer queries</span>
-          <span class="arrow">&rarr;</span>
-          <span>Schema v1.0 + normalizer</span>
-          <span class="arrow">&rarr;</span>
-          <span>LocalFind UI prototype</span>
-        </div>
-        <p class="lead">Early versions proved access patterns. The final system adds portability metadata, automated tests, and the experience you just saw.</p>
-      </section>
-
-      <section>
-        <h2>Under the hood (for the curious)</h2>
-        <ul>
-          <li>Python Flask API with search, stats, and open-now endpoints</li>
-          <li>MongoDB (or file-based Mongita for easy local demos)</li>
-          <li>Normalizer transforms source JSON into Small Business Platform records</li>
-          <li>Nine automated tests validate schema and security behavior</li>
-        </ul>
-        <p class="small">Demo dataset: six real-shaped Seattle businesses; production path integrates Yelp Fusion with the same normalizer.</p>
-      </section>
-
-      <section>
-        <h2>Live API (optional demo)</h2>
-        <p class="lead">Start the API and ngrok, then open links — or append <code>?api=https://your-ngrok-url</code> to this deck.</p>
-        <ul style="font-size:0.75em">
-          <li><a id="demo-health" href="http://localhost:5002/health" target="_blank">API health check</a></li>
-          <li><a id="demo-search" href="http://localhost:5002/businesses/search?term=coffee&amp;location=Capitol%20Hill" target="_blank">Search: coffee in Capitol Hill</a></li>
-          <li><a id="demo-web" href="../web/platform.html" target="_blank">Open full-screen prototype</a></li>
-        </ul>
-      </section>
-
-      <section>
-        <h2>What comes next</h2>
-        <ul>
-          <li>Connect live Yelp ingestion with caching and rate-limit handling</li>
-          <li>Deploy LocalFind as a public site wired to the API</li>
-          <li>Partner with a neighborhood association for real listings</li>
-          <li>Export feeds for maps, newsletters, and accessibility tools</li>
-        </ul>
+        <p class="section-label">Demo</p>
+        <h2>LocalFind — try it live</h2>
+        <iframe class="mockup-frame" src="../web/platform.html" title="LocalFind"></iframe>
+        <p class="small">Fashion · Fitness · ZIP filter · Near me · open a card for hours and directions</p>
       </section>
 
       <section>
         <h2>Thank you</h2>
-        <p class="lead">LocalFind — portable neighborhood business information for people who want to shop local.</p>
+        <p class="lead">LocalFind helps community members discover local small businesses — and gives owners more visibility.</p>
         <p class="small">
-          Code &amp; docs: <a href="https://github.com/Sneha-8/IMT-542/tree/main/final" target="_blank">GitHub</a><br />
-          Prototype: <code>final/web/platform.html</code>
+          <a href="https://github.com/Sneha-8/IMT-542/tree/main/final" target="_blank">github.com/Sneha-8/IMT-542/tree/main/final</a>
         </p>
-        <p style="margin-top:1.5em">Questions?</p>
+        <p style="margin-top:1em">Questions?</p>
       </section>
 
     </div>
@@ -275,25 +245,17 @@
     const params = new URLSearchParams(location.search);
     const apiBase = (params.get("api") || "").replace(/\/$/, "");
     if (apiBase) {
-      ["demo-health", "demo-search"].forEach((id) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const u = new URL(el.href);
-        el.href = apiBase + u.pathname + u.search;
-      });
       document.querySelectorAll(".mockup-frame").forEach((f) => {
         f.src = "../web/platform.html?api=" + encodeURIComponent(apiBase);
       });
     }
-    if (location.hash === "#detail-demo") {
-      window.addEventListener("load", () => {
-        setTimeout(() => {
-          const inner = document.querySelector(".mockup-frame")?.contentWindow;
-          if (inner) inner.postMessage("open-first", "*");
-        }, 800);
-      });
-    }
-    Reveal.initialize({ hash: true, slideNumber: true, transition: "slide", width: 1280, height: 720 });
+    Reveal.initialize({
+      hash: true,
+      slideNumber: true,
+      transition: "slide",
+      width: 1280,
+      height: 720,
+    });
   </script>
 </body>
 </html>

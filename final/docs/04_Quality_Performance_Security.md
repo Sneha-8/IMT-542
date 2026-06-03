@@ -1,6 +1,7 @@
 # Quality, Performance, and Security — Final System
 
-Builds on **G9 Test Plan** with **measured results** from the `final/` API (local run, May 2026).
+**Project:** LocalFind (SBP v1.0) | **Author:** Sneha Reddy  
+Builds on **G9 Test Plan** with measured results from the `final/` build (June 2026).
 
 ---
 
@@ -8,42 +9,63 @@ Builds on **G9 Test Plan** with **measured results** from the `final/` API (loca
 
 | Metric | Target | Measurement method |
 |--------|--------|-------------------|
-| Schema contract | 100% responses validate against `sbp_schema_v1.json` | `pytest` + `jsonschema` |
-| `completeness_score` | ≥ 0.85 average on list endpoints | `query_summary.quality_summary` |
-| Valid E.164 phones when present | ≥ 95% | Regex on `contact.phone_e164` |
-| Provenance present | 100% | Field presence check |
-| Correct business data | IDs match seed dataset | Functional tests F1–F2 |
+| Schema contract | 100% responses validate | `pytest` + `jsonschema` |
+| `completeness_score` | Document per source | `query_summary.quality_summary` |
+| Valid E.164 when phone present | ≥ 95% | Regex on `contact.phone_e164` |
+| Provenance present | 100% | Field presence on all endpoints |
+| Live data correctness | Names/addresses match upstream | Manual spot-check + Yelp/OSM links |
+| Functional tests | All pass | `pytest -q` (12 tests) |
 
 ---
 
-## 2. Observed quality (demo dataset, n=6)
+## 2. Observed quality
+
+### Curated dataset (n=6, `source=local`)
+
+| Metric | Result |
+|--------|--------|
+| Schema validation | **Pass** |
+| Average `completeness_score` | **~0.92** |
+| E.164 valid (phones present) | **100%** |
+| `provenance.license` | **CC-BY-4.0** |
+
+### Live cache (n≈500, Yelp + OSM)
 
 | Metric | Result | Notes |
 |--------|--------|-------|
-| Schema validation (list + single) | **Pass** | CI tests in `tests/test_api.py` |
-| Average `completeness_score` | **0.92** | All records have name, rating, address, category |
-| E.164 valid (where phone exists) | **100%** (6/6) | Normalizer strips non-digits |
-| `provenance.license` present | **100%** | `CC-BY-4.0` for curated data |
-| Records with `is_complete: true` | **5/6** | One record missing optional `website` flag only |
+| Records with `name` + address | **>95%** | OSM gaps on hours |
+| Records with Yelp `rating` | **~70%** of Yelp-sourced rows | OSM-only rows lack rating |
+| `provenance` on live search | **100%** | Source + license in envelope |
+| Category coverage | Food, fashion, fitness, retail, services, beauty, pets, books, home | Via `populate_queries.json` |
 
-**Gap:** Demo data lacks `review_count` and geo coordinates for all records.  
-**Remediation:** When wiring Yelp upstream, map `review_count` and `coordinates` in `normalizer.py`; backfill from Fusion API.
+**Gaps:** OSM `opening_hours` inconsistent; some businesses lack photos.  
+**Remediation:** Yelp enrichment on detail (`?full=1`); merge by business name in `live_search.py`.
 
 ---
 
-## 3. Desired performance
+## 3. Desired vs actual performance
 
-| Scenario | Target (G9) | Measured (local, warm) |
-|----------|-------------|------------------------|
-| `GET /health` | < 50 ms | ~8–15 ms |
-| `GET /businesses/search` (cached) | p95 < 250 ms | ~25–45 ms |
-| `GET /businesses/{id}` | p95 < 200 ms | ~12–30 ms |
-| `GET /stats` (aggregation) | p95 < 300 ms | ~35–60 ms |
+| Scenario | Target | Measured (local) |
+|----------|--------|-------------------|
+| `GET /health` | < 50 ms | **~15 ms** |
+| `GET /businesses/search` (cached, `fast=true`) | < 500 ms | **~20–100 ms** |
+| `GET /businesses/search` (live `refresh=true`) | < 45 s | **~15–40 s** (Yelp+OSM parallel) |
+| `GET /businesses/{id}` (cached) | < 300 ms | **~50–200 ms** |
+| `GET /businesses/{id}?full=1` | < 5 s | **~1–3 s** (Yelp detail) |
 
-Measurement: `curl -w '%{time_total}\n'` against `localhost:5002` after `seed_db.py`, Flask debug off.
+Measurements: `curl -w '%{time_total}\n'`, Flask debug off, `USE_MONGITA=true`, 500+ cached records.
 
-**Gap:** Cold start with Mongita on first query ~80 ms — acceptable for demo.  
-**Remediation:** Keep MongoDB indexes (see `seed_db.py`); add 24h response cache (dict + TTL) for production; see G9 P2/P14.
+### Performance design choices
+
+| Choice | Benefit | Tradeoff |
+|--------|---------|----------|
+| MongoDB/Mongita cache | Sub-second repeat searches | Stale until `refresh=true` |
+| `fast=true` default in UI | Good UX | May miss brand-new listings |
+| Parallel Yelp + OSM | Shorter live fetch | Still network-bound |
+| Single Overpass call (fast OSM) | Faster than triple Nominatim+Overpass | Fewer OSM hits per query |
+| In-memory response cache (TTL 5 min) | Repeated identical API calls fast | Memory only |
+
+**Remediation (production):** Redis cache; CDN for static UI; background `populate_live_data.py` cron.
 
 ---
 
@@ -51,24 +73,27 @@ Measurement: `curl -w '%{time_total}\n'` against `localhost:5002` after `seed_db
 
 | Control | Status | Implementation |
 |---------|--------|----------------|
-| Restricted contact without token | **Implemented** | Default `data_classification: public` strips `email` unless Bearer matches `SBP_API_TOKEN` |
-| Invalid token | **401** | `app.py` `require_token()` |
-| API keys not in responses | **Pass** | No Yelp key in repo |
-| TLS for public demo | **Via ngrok** | HTTPS tunnel to local Flask |
-| Rate limiting | **Planned** | Documented in G9 S3; not enabled in class demo |
+| Public vs restricted contact | **Implemented** | `apply_auth_policy()` strips phone/email without Bearer |
+| Invalid token on protected use | **401** | `token_ok()` in `app.py` |
+| API keys not in repo/responses | **Pass** | `YELP_API_KEY` in `.env` only (gitignored) |
+| TLS for public demo | **Via ngrok** | HTTPS tunnel to Flask |
+| Upstream license compliance | **Documented** | Yelp display-only; OSM ODbL attribution in `provenance` |
+| Rate limiting | **Planned** | G9 S3; not enabled in class demo |
 
-**Demo token:** set `export SBP_API_TOKEN=dev-class-token` before starting Flask.
+**Demo token:** `export SBP_API_TOKEN=dev-class-token`
 
 ---
 
 ## 5. Remediation roadmap
 
-| Priority | Item | Owner action |
-|----------|------|--------------|
-| P1 | Add Yelp Fusion adapter behind normalizer | Implement `yelp_client.py` with env `YELP_API_KEY` |
-| P2 | GitHub Actions CI on push | `.github/workflows/test.yml` |
-| P3 | External uptime check on ngrok URL | UptimeRobot (G9) |
-| P4 | Locust load test for 10 RPS | Run before presentation |
+| Priority | Item | Status |
+|----------|------|--------|
+| P1 | Yelp Fusion adapter | **Done** — `yelp_client.py` |
+| P2 | OpenStreetMap adapter | **Done** — `osm_client.py` |
+| P3 | Bulk cache populate | **Done** — `scripts/populate_live_data.py` |
+| P4 | Automated tests | **Done** — 12 tests passing |
+| P5 | GitHub Actions CI | Recommended |
+| P6 | Locust load test | Before production scale |
 
 ---
 
@@ -76,12 +101,9 @@ Measurement: `curl -w '%{time_total}\n'` against `localhost:5002` after `seed_db
 
 ```bash
 cd final
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
-python seed_db.py
-export SBP_API_TOKEN=dev-class-token
-flask --app app run -p 5002 &
+source .venv/bin/activate
+export USE_MONGITA=true
 pytest -q
 ```
 
-Expected: all tests pass; documents actual vs desired quality/performance for rubric items 9–10.
+Expected: **12 passed** — covers health, search, schema, auth, local source, live/OSM mock, Yelp when configured.
