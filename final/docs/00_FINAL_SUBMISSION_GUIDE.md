@@ -23,7 +23,7 @@
 
 ---
 
-## Rubric map (50 points = 10 items × 5 pts)
+## Rubric map
 
 | # | Rubric criterion | Points | Primary evidence |
 |---|------------------|--------|------------------|
@@ -38,11 +38,7 @@
 | 9 | Quality documented (desired vs actual) | 5 | [04_Quality_Performance_Security.md](04_Quality_Performance_Security.md) §1–2 |
 | 10 | Performance documented (desired vs actual + remediation) | 5 | [04_Quality_Performance_Security.md](04_Quality_Performance_Security.md) §3–5 |
 
-**Checklist with Done marks:** [05_Rubric_Scorecard.md](05_Rubric_Scorecard.md)
-
 ---
-
-## Five grading areas (assignment narrative)
 
 ### 1. Ideate — information story, requirements, wireframes
 
