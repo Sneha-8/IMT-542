@@ -15,9 +15,9 @@ Portable JSON API + **LocalFind web app** that helps Seattle residents discover 
 
 Data is normalized to **SBP v1.0**, cached in MongoDB, and served through Flask. Builds on I4–I8, G8, G9.
 
-## Final submission (rubric)
+## Final submission
 
-Start here: **[docs/00_FINAL_SUBMISSION_GUIDE.md](docs/00_FINAL_SUBMISSION_GUIDE.md)** — maps all 10 rubric items to evidence files.
+Start here: **[docs/00_FINAL_SUBMISSION_GUIDE.md](docs/00_FINAL_SUBMISSION_GUIDE.md)** 
 
 ## Deliverables
 
